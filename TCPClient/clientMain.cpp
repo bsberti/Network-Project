@@ -5,14 +5,18 @@
 #include <WS2tcpip.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <iostream>
+#include <string>
 
 #pragma comment(lib, "Ws2_32.lib")
 
-int main(int argc, char** argv) {
-	// Initialization
-	WSADATA wsaData;
-	int result;
+WSADATA wsaData;
+int result;
 
+// Create socket
+SOCKET connectSocket;
+
+int Initialize(std::string ipaddr, std::string port) {
 	result = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	printf("WSAStartup... ");
 	if (result != 0) {
@@ -27,14 +31,14 @@ int main(int argc, char** argv) {
 	struct addrinfo* ptr = nullptr;
 	struct addrinfo hints;
 	ZeroMemory(&hints, sizeof(hints));
-	
+
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
-	
+
 	// 127.0.0.1 - local
 	printf("Calling AddrInfo... ");
-	result = getaddrinfo("127.0.0.1", "5555", &hints, &info);
+	result = getaddrinfo(ipaddr.c_str(), port.c_str(), &hints, &info);
 	if (result != 0) {
 		printf("getaddrinfo failed with error %d\n", result);
 		WSACleanup();
@@ -44,8 +48,7 @@ int main(int argc, char** argv) {
 		printf("Succeded!\n");
 	}
 
-	// Create socket
-	SOCKET connectSocket;
+	
 	printf("Creating socket... ");
 	connectSocket = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
 	if (connectSocket == INVALID_SOCKET) {
@@ -71,48 +74,31 @@ int main(int argc, char** argv) {
 		printf("Succeded!\n");
 	}
 
-	// Waiting for user to press any button
-	system("Pause");
-
-	const char* buf = "Hello!";
-	int buflen = 6;
-
-	const int recvBufLen = 128;
-	char recvBuf[recvBufLen];
-
-	printf("Sending message to the server... ");
-	result = send(connectSocket, buf, buflen, 0);
+	DWORD NonBlock = 1;
+	printf("Input-Output control socket nonBlock... ");
+	result = ioctlsocket(connectSocket, FIONBIO, &NonBlock);
 	if (result == SOCKET_ERROR) {
-		printf("failed to send message to the server with error %d\n", WSAGetLastError());
+		printf("ioctlsocket failed with error %d\n", WSAGetLastError());
 		closesocket(connectSocket);
+		freeaddrinfo(info);
 		WSACleanup();
 		return 1;
 	}
 	else {
 		printf("Succeded!\n");
-		printf("Sent %d bytes to the Server.\n", result);
 	}
 
-	printf("Receiving message from the server... ");
-	result = recv(connectSocket, recvBuf, recvBufLen, 0);
-	if (result == SOCKET_ERROR) {
-		printf("failed to receive message from the server with error %d\n", WSAGetLastError());
-		closesocket(connectSocket);
-		WSACleanup();
-		return 1;
-	}
-	else {
-		printf("Succeded!\n");
-		printf("Received %d bytes from the Server.\n", result);
-	}
+	return result;
+}
 
+void Shutingdown() {
 	printf("Shuting down... ");
 	result = shutdown(connectSocket, SD_SEND);
 	if (result == SOCKET_ERROR) {
 		printf("shutdown failed with error %d\n", WSAGetLastError());
 		closesocket(connectSocket);
 		WSACleanup();
-		return 1;
+		return;
 	}
 	else {
 		printf("Succeded!\n");
@@ -121,6 +107,80 @@ int main(int argc, char** argv) {
 	printf("Closing... \n");
 	closesocket(connectSocket);
 	WSACleanup();
+}
 
+int main(int argc, char** argv) {
+	// Initialization
+	result = Initialize("127.0.0.1", "5555");
+	if (result != 0) {
+		Shutingdown();
+		return result;
+	}
+
+	// Do-while loop to send and receive data
+	
+	const int recvBufLen = 1024;
+	char receivedBuffer[recvBufLen];
+	bool tryAgain = true;
+	std::string userInput;
+	std::string userName;
+
+	// Prompt the user for some text
+	std::cout << "Insert Username> ";
+	getline(std::cin, userName);
+
+	do
+	{
+		std::cout << "Message: ";
+		getline(std::cin, userInput);
+
+		if (userInput.size() > 0)
+		{
+			// Send the text
+			int sendResult = send(connectSocket, userInput.c_str(), userInput.size() + 1, 0);
+			if (sendResult == SOCKET_ERROR)
+			{
+				printf("failed to send message to the server with error %d\n", WSAGetLastError());
+				closesocket(connectSocket);
+				WSACleanup();
+				return 1;
+			} else {
+				ZeroMemory(receivedBuffer, recvBufLen);
+				while (tryAgain) {
+					result = recv(connectSocket, receivedBuffer, recvBufLen, 0);
+					// 0 = closed connection, disconnection
+					// > 0 = number of bytes received
+					// -1 = SCOKET_ERROR
+
+					if (result == SOCKET_ERROR) {
+						if (WSAGetLastError() == WSAEWOULDBLOCK) {
+							printf(".");
+							tryAgain = true;
+						}
+						else {
+							printf("failed to receive message from the server with error %d\n", WSAGetLastError());
+							closesocket(connectSocket);
+							WSACleanup();
+							return 1;
+						}
+					}
+					else {
+						tryAgain = false;
+						printf("Succeded!\n");
+						printf("Received %d bytes from the Server.\n", result);
+					}
+				}
+				//result = recv(connectSocket, receivedBuffer, recvBufLen, 0);
+				//if (result > 0)
+				//{
+				//	// Echo response to console
+				//	std::cout << "SERVER> " << std::string(receivedBuffer, 0, result) << std::endl;
+				//}
+			}
+		}
+
+	} while (userInput.size() > 0);	
+
+	Shutingdown();
 	return 0;
 }

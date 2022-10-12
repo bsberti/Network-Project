@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <vector>
+#include <string>
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -44,7 +45,6 @@ int Initialize() {
 		printf("Succeded!\n");
 	}
 
-	
 	ZeroMemory(&g_ServerInfo.hints, sizeof(g_ServerInfo.hints));
 
 	g_ServerInfo.hints.ai_family = AF_INET;
@@ -131,7 +131,7 @@ int main(int argc, char** argv) {
 	int selectResult;
 
 	// Communication
-	printf("Selecting server...");
+	printf("Selecting...");
 	for (;;) {
 
 		FD_ZERO(&g_ServerInfo.socketsReadyForReading);
@@ -146,7 +146,7 @@ int main(int argc, char** argv) {
 				FD_SET(currentClient.socket, &g_ServerInfo.socketsReadyForReading);
 			}
 		}
-		
+
 		selectResult = select(0, &g_ServerInfo.socketsReadyForReading, NULL, NULL, &tv);
 		if (selectResult == SOCKET_ERROR) {
 			printf("select failed with error %d\n", WSAGetLastError());
@@ -166,6 +166,15 @@ int main(int argc, char** argv) {
 				newClient.socket = newClientSocket;
 				newClient.connected = true;
 				g_ServerInfo.clients.push_back(newClient);
+
+				std::string welcomeMessage = "Welcome to MyServer!\n";
+				int sendResult = send(newClient.socket, welcomeMessage.c_str(), welcomeMessage.size() + 1, 0);
+				if (sendResult == SOCKET_ERROR) {
+					printf("failed to send message back to the client with error %d\n", WSAGetLastError());
+				}
+				else {
+					printf("Sent %d bytes to the Client.\n", sendResult);
+				}
 			}
 		}
 
@@ -179,6 +188,7 @@ int main(int argc, char** argv) {
 				const int buflen = 128;
 				char buf[buflen];
 
+				// Receiving message from currentClient
 				int recvResult = recv(currentClient.socket, buf, buflen, 0);
 				if (recvResult == 0) {
 					printf("Client disconnected\n");
@@ -193,7 +203,8 @@ int main(int argc, char** argv) {
 					printf("Message from Client: %s\n", buf);
 				}
 
-				int sendResult = send(currentClient.socket, buf, recvResult, 0);
+				std::string welcomeMessage = "Mensagem recebida.\n";
+				int sendResult = send(currentClient.socket, welcomeMessage.c_str(), welcomeMessage.size() + 1, 0);
 				if (sendResult == SOCKET_ERROR) {
 					printf("failed to send message back to the client with error %d\n", WSAGetLastError());
 				}
@@ -208,3 +219,30 @@ int main(int argc, char** argv) {
 	Shutdown();
 	return 0;
 }
+
+
+//#include "MyServer.h"
+
+//int main(int argc, char** argv) {
+//	MyServer server;
+//
+//	int result = server.Initialize();
+//	if (result != 0) {
+//		return result;
+//	}
+//
+//	struct timeval tv;
+//	tv.tv_sec = 0;
+//	tv.tv_usec = 500 * 1000;
+//
+//	int selectResult;
+//
+//	// Communication
+//	selectResult = server.OpenServer(tv);
+//	if (selectResult != 0) {
+//		return selectResult;
+//	}
+//
+//	server.Shutdown();
+//	return 0;
+//}
