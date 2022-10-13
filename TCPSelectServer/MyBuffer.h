@@ -14,9 +14,10 @@ public:
 	uint32_t ReadUInt32LE(std::size_t index);
 	uint32_t ReadUInt32LE();
 
-private:
 	// call m_Buffer.resize in your constructor
 	std::vector<uint8_t> m_Buffer;
+
+private:
 
 	// initialize these at 0
 	int m_WriteBuffer;

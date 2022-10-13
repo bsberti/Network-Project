@@ -10,7 +10,11 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
+#include "MyBuffer.h"
+
 #define DEFAULT_PORT "5555"
+
+MyBuffer buffer(8);
 
 struct ClientInformation {
 	SOCKET socket;
@@ -24,7 +28,26 @@ struct ServerInfo {
 	fd_set activeSockets;
 	fd_set socketsReadyForReading;
 	std::vector<ClientInformation> clients;
+	std::vector<std::string> rooms;
 } g_ServerInfo;
+
+struct Packet {
+	int packetLength;
+	int messageId;
+};
+
+struct SendCommandPacket : public Packet {
+	std::string roomName;
+	std::string message;
+};
+
+struct JoinRoomCommandPacket : public Packet {
+	std::string roomName;
+};
+
+struct LeaveRoomCommandPacket : public Packet {
+	std::string roomName;
+};
 
 
 int Initialize() {
@@ -167,7 +190,8 @@ int main(int argc, char** argv) {
 				newClient.connected = true;
 				g_ServerInfo.clients.push_back(newClient);
 
-				std::string welcomeMessage = "Welcome to MyServer!\n";
+				std::string welcomeMessage = "Welcome to MyServer!\nPossible Commands:\n1 - Join a Room [1][RoomName] (Example: 1 GamingRoom)\n2 - Leave a Room [2][RoomName] (Example: 2 GamingRoom)\n3 - Send Message to a Room [3][RoomName][Message] (Example: 3 GamingRoom Hello room!\n";
+
 				int sendResult = send(newClient.socket, welcomeMessage.c_str(), welcomeMessage.size() + 1, 0);
 				if (sendResult == SOCKET_ERROR) {
 					printf("failed to send message back to the client with error %d\n", WSAGetLastError());
