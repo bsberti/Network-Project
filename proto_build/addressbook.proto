@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+package tutorial;
+
+message Person {
+  required int32 id = 1;
+  required string name = 2;
+  required string email = 3;
+  required string username = 4;
+  required string password = 5;
+  required string phone = 6;
+}
+
+message AddressBook {
+  repeated Person person = 1;
+}
+

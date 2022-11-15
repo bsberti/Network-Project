@@ -8,11 +8,14 @@
 #include <iostream>
 #include <string>
 
+//#include "addressbook.pb.h"
+
 #pragma comment(lib, "Ws2_32.lib")
 
 #include "MyBuffer.h"
+#include "cCreateAccountPacket.h"
 
-MyBuffer buffer(8);
+MyBuffer* buffer = new MyBuffer(128);
 
 WSADATA wsaData;
 int result;
@@ -22,13 +25,27 @@ SOCKET connectSocket;
 
 const int recvBufLen = 1024;
 char receivedBuffer[recvBufLen];
+
 bool tryAgain = true;
+bool loggedIn = false;
+
 std::string userInput;
 std::string userName;
+cCreateAccountPacket pCreateAccountPacket;
+
+//tutorial::AddressBook addressBook;
+//tutorial::Person *clientTryingToConectInfo = addressBook.add_person();
 
 struct Packet {
 	int packetLength;
 	int messageId;
+};
+
+struct LoginCommandPacket : public Packet {
+	std::string name;
+	std::string email;
+	std::string username;
+	std::string password;
 };
 
 struct JoinRoomCommandPacket : public Packet {
@@ -43,7 +60,6 @@ struct SendCommandPacket : public Packet {
 	std::string roomName;
 	std::string message;
 };
-
 
 int Initialize(std::string ipaddr, std::string port) {
 	result = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -116,6 +132,7 @@ int Initialize(std::string ipaddr, std::string port) {
 	else {
 		printf("Succeded!\n");
 		ZeroMemory(receivedBuffer, recvBufLen);
+		
 		while (tryAgain) {
 			result = recv(connectSocket, receivedBuffer, recvBufLen, 0);
 			// 0 = closed connection, disconnection
@@ -163,7 +180,7 @@ void Shutingdown() {
 	WSACleanup();
 }
 
-void CheckUserImput(std::string userImput) {
+void CheckUserCommand(std::string userImput) {
 	JoinRoomCommandPacket joinPkt;
 	LeaveRoomCommandPacket leavePkt;
 	SendCommandPacket sendPkt;
@@ -171,9 +188,12 @@ void CheckUserImput(std::string userImput) {
 	std::string roomName;
 	std::string message;
 
+	int messageTotalLenght;
+	int messageId;
+	int messageLength;
+
 	switch (userImput[0]) {
 	case '1':
-
 		joinPkt.messageId = 1;
 
 		std::cout << "Room Name you wanted to join: \n";
@@ -184,10 +204,19 @@ void CheckUserImput(std::string userImput) {
 		joinPkt.packetLength = sizeof(Packet) +
 			sizeof(roomName.size()) + roomName.size();
 
-		buffer.WriteInt32LE(joinPkt.packetLength);
-		buffer.WriteInt32LE(joinPkt.messageId);
-		buffer.WriteInt32LE(joinPkt.roomName.size());
-		//buffer.WriteString(joinPkt.roomName);
+		buffer->WriteInt32LE(joinPkt.packetLength);
+		buffer->WriteInt32LE(joinPkt.messageId);
+		buffer->WriteInt32LE(joinPkt.roomName.size());
+		buffer->WriteString(joinPkt.roomName);
+
+		messageTotalLenght = buffer->ReadUInt32LE();
+		messageId = buffer->ReadUInt32LE();
+		messageLength = buffer->ReadUInt32LE();
+		message = buffer->ReadString(messageLength);
+
+		std::cout << "messageLenght: " << messageTotalLenght << std::endl;
+		std::cout << "messageId: " << messageId << std::endl;
+		std::cout << "readMessage: " << message << std::endl;
 		break;
 	case '2':
 		leavePkt.messageId = 1;
@@ -221,7 +250,74 @@ void CheckUserImput(std::string userImput) {
 	}
 }
 
+void CheckUserImput(std::string userImput) {
+	std::string userNameImput;
+	std::string passwordImput;
+	std::string nameImput;
+	std::string emailImput;
+	std::string telephoneImput;
+
+	switch (userImput[0]) {
+	case '1':
+		// LOGIN - Send message type 1 to Server TCP
+		std::cout << "Username: \n>";
+		getline(std::cin, userNameImput);
+
+		std::cout << "Password:\n>";
+		getline(std::cin, passwordImput);
+
+		if (userNameImput != "" && passwordImput != "") {
+
+		}
+		break;
+	case '2':
+		// CREATE AN ACCOUNT - Send message type 1 to Server TCP
+		std::cout << "Name: \n>";
+		getline(std::cin, nameImput);
+
+		std::cout << "E-Mail: \n>";
+		getline(std::cin, emailImput);
+
+		std::cout << "Telephone: \n>";
+		getline(std::cin, telephoneImput);
+
+		std::cout << "Username: \n>";
+		getline(std::cin, userNameImput);
+
+		std::cout << "Password:\n>";
+		getline(std::cin, passwordImput);
+
+		if (userNameImput != "" && 
+			passwordImput != "" &&
+			telephoneImput != "" &&
+			emailImput != "" &&
+			nameImput != "" ) {
+			
+			//clientTryingToConectInfo->set_id(1);
+			//clientTryingToConectInfo->set_name(nameImput);
+			//clientTryingToConectInfo->set_email(emailImput);
+			//clientTryingToConectInfo->set_username(userNameImput);
+			//clientTryingToConectInfo->set_password(passwordImput);
+			//clientTryingToConectInfo->set_phone(telephoneImput);
+
+			// MESSAGE ->
+			// [Packet Length][MessageIDsize][MessageID][messageSize][message]
+			pCreateAccountPacket.setPacketLength(sizeof(cCreateAccountPacket));
+			pCreateAccountPacket.setMessageId(2);
+			pCreateAccountPacket.name = nameImput;
+			pCreateAccountPacket.email = emailImput;
+			pCreateAccountPacket.username = userNameImput;
+			pCreateAccountPacket.password = passwordImput;
+
+			pCreateAccountPacket.serializePacket(buffer);
+		}
+		break;
+
+	}
+}
+
 int main(int argc, char** argv) {
+
 	// Initialization
 	result = Initialize("127.0.0.1", "5555");
 	if (result != 0) {
@@ -229,10 +325,72 @@ int main(int argc, char** argv) {
 		return result;
 	}
 
-	// Defining userName
-	std::cout << "Insert Username\n> ";
-	getline(std::cin, userName);
+	// LOGIN OR SIGN IN
+	do {
+		system("CLS");
+		std::cout << "CHAT SERVER\n> ";
+		std::cout << "Chose one of the options to continue . . .\n> ";
+		std::cout << "1 - Login\n> ";
+		std::cout << "2 - Create an account\n> ";
+		getline(std::cin, userInput);
+		if (userInput.size() > 0) {
+			CheckUserImput(userInput);
 
+			// Send Buffer
+			int sendResult = send(connectSocket, (const char*)&(buffer->m_Buffer[0]), buffer->m_Buffer.size(), 0);
+			if (sendResult == SOCKET_ERROR)
+			{
+				printf("failed to send message to the server with error %d\n", WSAGetLastError());
+				closesocket(connectSocket);
+				WSACleanup();
+				return 1;
+			}
+			else {
+				ZeroMemory(receivedBuffer, recvBufLen);
+				tryAgain = true;
+				std::cout << "Waiting for Server response ";
+				while (tryAgain) {
+					result = recv(connectSocket, receivedBuffer, recvBufLen, 0);
+					// 0 = closed connection, disconnection
+					// > 0 = number of bytes received
+					// -1 = SCOKET_ERROR
+
+					if (result == SOCKET_ERROR) {
+						if (WSAGetLastError() == WSAEWOULDBLOCK) {
+							tryAgain = true;
+							Sleep(1000);
+							std::cout << ". ";
+						}
+						else {
+							printf("failed to receive message from the server with error %d\n", WSAGetLastError());
+							closesocket(connectSocket);
+							WSACleanup();
+							return 1;
+						}
+					}
+					else {
+						std::string recvString = std::string(receivedBuffer, 0, result);
+						std::cout << "SERVER> " << recvString << std::endl;
+						printf("Received %d bytes from the Server.\n", result);
+						if (recvString == "validated") {
+							tryAgain = false;
+							loggedIn = true;
+							//LOGIN SUCESSFULL
+							std::cout << "Login Sucessfull!";
+						}
+						else {
+							//LOGIN FAIL
+							loggedIn = false;
+							std::cout << "Login Fail!";
+						}
+					}
+				}
+			}
+		}
+	} while (!loggedIn);
+
+
+	// CHAT ROOM
 	do
 	{
 		std::cout << "Command: \n>";
@@ -240,10 +398,10 @@ int main(int argc, char** argv) {
 
 		if (userInput.size() > 0)
 		{
-			CheckUserImput(userInput);
+			CheckUserCommand(userInput);
 
 			// Send the text
-			int sendResult = send(connectSocket, (const char*)&(buffer.m_Buffer[0]), userInput.size() + 1, 0);
+			int sendResult = send(connectSocket, (const char*)&(buffer->m_Buffer[0]), buffer->m_Buffer.size(), 0);
 			if (sendResult == SOCKET_ERROR)
 			{
 				printf("failed to send message to the server with error %d\n", WSAGetLastError());
@@ -252,6 +410,7 @@ int main(int argc, char** argv) {
 				return 1;
 			} else {
 				ZeroMemory(receivedBuffer, recvBufLen);
+				tryAgain = true;
 				while (tryAgain) {
 					result = recv(connectSocket, receivedBuffer, recvBufLen, 0);
 					// 0 = closed connection, disconnection
