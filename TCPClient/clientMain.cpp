@@ -8,12 +8,13 @@
 #include <iostream>
 #include <string>
 
-//#include "addressbook.pb.h"
+#include <SHA256.h>
 
 #pragma comment(lib, "Ws2_32.lib")
 
 #include "MyBuffer.h"
 #include "cCreateAccountPacket.h"
+#include "gen/addressbook.pb.h"
 
 MyBuffer* buffer = new MyBuffer(128);
 
@@ -31,10 +32,8 @@ bool loggedIn = false;
 
 std::string userInput;
 std::string userName;
-cCreateAccountPacket pCreateAccountPacket;
-
-//tutorial::AddressBook addressBook;
-//tutorial::Person *clientTryingToConectInfo = addressBook.add_person();
+cCreateAccountPacket pCreateAccountPacket; 
+std::string serializedString;
 
 struct Packet {
 	int packetLength;
@@ -251,65 +250,75 @@ void CheckUserCommand(std::string userImput) {
 }
 
 void CheckUserImput(std::string userImput) {
-	std::string userNameImput;
 	std::string passwordImput;
-	std::string nameImput;
+	std::string userIdImput;
 	std::string emailImput;
-	std::string telephoneImput;
+
+	Authentication::CreateAccountPacket createAccountPacket;
+	Authentication::LoginPacket loginPacket;
 
 	switch (userImput[0]) {
 	case '1':
 		// LOGIN - Send message type 1 to Server TCP
-		std::cout << "Username: \n>";
-		getline(std::cin, userNameImput);
+		std::cout << "E-mail: \n>";
+		getline(std::cin, emailImput);
 
 		std::cout << "Password:\n>";
 		getline(std::cin, passwordImput);
 
-		if (userNameImput != "" && passwordImput != "") {
+		if (emailImput != "" && passwordImput != "") {
 
 		}
 		break;
 	case '2':
 		// CREATE AN ACCOUNT - Send message type 1 to Server TCP
-		std::cout << "Name: \n>";
-		getline(std::cin, nameImput);
+		std::cout << "User ID: \n>";
+		getline(std::cin, userIdImput);
 
 		std::cout << "E-Mail: \n>";
 		getline(std::cin, emailImput);
 
-		std::cout << "Telephone: \n>";
-		getline(std::cin, telephoneImput);
-
-		std::cout << "Username: \n>";
-		getline(std::cin, userNameImput);
-
 		std::cout << "Password:\n>";
 		getline(std::cin, passwordImput);
 
-		if (userNameImput != "" && 
+		if (userIdImput != "" &&
 			passwordImput != "" &&
-			telephoneImput != "" &&
-			emailImput != "" &&
-			nameImput != "" ) {
+			emailImput != "") {
 			
-			//clientTryingToConectInfo->set_id(1);
-			//clientTryingToConectInfo->set_name(nameImput);
-			//clientTryingToConectInfo->set_email(emailImput);
-			//clientTryingToConectInfo->set_username(userNameImput);
-			//clientTryingToConectInfo->set_password(passwordImput);
-			//clientTryingToConectInfo->set_phone(telephoneImput);
+			//createAccountPacket.set_packetlength(sizeof(Authentication::CreateAccountPacket));
+			//createAccountPacket.set_requestid(2);
+			createAccountPacket.set_userid(stoi(userIdImput));
+			createAccountPacket.set_email(emailImput);
+			
+			std::string hashedPassword;
+			SHA256 sha;
+			sha.update(passwordImput);
+			uint8_t* digest = sha.digest();
+
+			std::cout << SHA256::toString(digest) << std::endl;
+
+			createAccountPacket.set_hashed_password(SHA256::toString(digest));
+
+			delete[] digest; // Don't forget to free the digest!
+
+			createAccountPacket.SerializeToString(&serializedString);
+
+			buffer->WriteInt32LE(sizeof(int) + 
+				sizeof(serializedString.length()) + 
+				sizeof(serializedString));
+			buffer->WriteInt32LE(2);
+			buffer->WriteInt32LE(serializedString.length());
+			buffer->WriteString(serializedString);
 
 			// MESSAGE ->
 			// [Packet Length][MessageIDsize][MessageID][messageSize][message]
-			pCreateAccountPacket.setPacketLength(sizeof(cCreateAccountPacket));
-			pCreateAccountPacket.setMessageId(2);
-			pCreateAccountPacket.name = nameImput;
-			pCreateAccountPacket.email = emailImput;
-			pCreateAccountPacket.username = userNameImput;
-			pCreateAccountPacket.password = passwordImput;
+			//pCreateAccountPacket.setPacketLength(sizeof(cCreateAccountPacket));
+			//pCreateAccountPacket.setMessageId(2);
+			//pCreateAccountPacket.name = userIdImput;
+			//pCreateAccountPacket.email = emailImput;
+			//pCreateAccountPacket.password = passwordImput;
 
-			pCreateAccountPacket.serializePacket(buffer);
+			//pCreateAccountPacket.serializePacket(buffer);
 		}
 		break;
 
@@ -317,7 +326,6 @@ void CheckUserImput(std::string userImput) {
 }
 
 int main(int argc, char** argv) {
-
 	// Initialization
 	result = Initialize("127.0.0.1", "5555");
 	if (result != 0) {

@@ -88,7 +88,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LibraryPath>$(SolutionDir)dev/lib/$(Platform)/$(Configuration);$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
-    <IncludePath>$(SolutionDir)dev/include/google;$(SolutionDir)proto_build/gen;$(SolutionDir)dev/include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)dev/include/google;$(SolutionDir);$(SolutionDir)dev/include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -147,11 +147,17 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SharedFiles.lib;libprotobuf.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mysqlcppconn.lib;SharedFiles.lib;libprotobuf.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\gen\addressbook.pb.cc" />
     <ClCompile Include="authMain.cpp" />
+    <ClCompile Include="ChatDB.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\gen\addressbook.pb.h" />
+    <ClInclude Include="ChatDB.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

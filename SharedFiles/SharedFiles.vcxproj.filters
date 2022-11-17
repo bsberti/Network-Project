@@ -15,10 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cLoginPacket.cpp">
+    <ClCompile Include="cCreateAccountPacket.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MyBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gen\addressbook.pb.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -30,6 +33,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MyBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gen\addressbook.pb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

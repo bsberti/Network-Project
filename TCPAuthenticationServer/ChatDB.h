@@ -8,7 +8,7 @@
 #include <jdbc/cppconn/resultset.h>
 #include <jdbc/cppconn/prepared_statement.h>
 
-#include "cCreateAccountPacket.h"
+#include "gen/addressbook.pb.h"
 
 class ChatDB {
 public:
@@ -17,8 +17,8 @@ public:
 
 	bool Connect();
 	void Disconnect();
-	int CreateAccount(cCreateAccountPacket* pckt);
-	bool LoginIn();
+	int CreateAccount(Authentication::CreateAccountPacket* pckt);
+	bool LoginIn(Authentication::LoginPacket* pckt);
 
 private:
 	sql::Driver* driver;

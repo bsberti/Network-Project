@@ -33,9 +33,9 @@ bool ChatDB::Connect()
 	try {
 		sql::SQLString hostname = "127.0.0.1::3306";
 		sql::SQLString username = "root";
-		sql::SQLString password = "beth.824";
+		sql::SQLString password = "Beth.824";
 		this->connection = this->driver->connect(hostname, username, password);
-		this->connection->setSchema("gameword");
+		this->connection->setSchema("gameworld");
 	}
 	catch (sql::SQLException e) {
 		printf("Failed to connect to our database: %s\n", e.what());
@@ -46,8 +46,8 @@ bool ChatDB::Connect()
 	try {
 		pStatement = connection->createStatement();
 		pCreateAccountStatement = connection->prepareStatement(
-			"INSERT INTO `gameworld`.`web_auth`" 
-			"(`email`, `salt`, `hashed_password`) VALUES (?, ?, ?)");
+			"INSERT INTO web_auth " 
+			"(`email`, `salt`, `hashed_password`, `userId`) VALUES (?, ?, ?, ?)");
 	}
 	catch (sql::SQLException e) {
 		printf("Failed to create statements: %s\n", e.what());
@@ -71,10 +71,10 @@ void ChatDB::Disconnect() {
 	delete pResultSet;
 }
 
-int ChatDB::CreateAccount(cCreateAccountPacket* pckt)
+int ChatDB::CreateAccount(Authentication::CreateAccountPacket* pckt)
 {
 	try {
-		sql::SQLString selectQuery = "SELECT * FROM web_auth WHERE email = " + pckt->email + ";";
+		sql::SQLString selectQuery = "SELECT * FROM web_auth WHERE email = '" + pckt->email() + "';";
 		pResultSet = pStatement->executeQuery(selectQuery);
 	}
 	catch (sql::SQLException e) {
@@ -84,10 +84,12 @@ int ChatDB::CreateAccount(cCreateAccountPacket* pckt)
 	printf("Successfully retrieved %d rows from the database!\n", (int)pResultSet->rowsCount());
 	
 	if (pResultSet->rowsCount() == 0) {
-		
-		pCreateAccountStatement->setString(1, pckt->email);
-		pCreateAccountStatement->setString(2, pckt->password);
-		pCreateAccountStatement->setString(3, pckt->password);
+		sql::SQLString salt;
+		salt = std::to_string(rand() * 100000);
+		pCreateAccountStatement->setString(1, pckt->email());
+		pCreateAccountStatement->setString(2, salt);
+		pCreateAccountStatement->setString(3, pckt->hashed_password());
+		pCreateAccountStatement->setBigInt(4, std::to_string(pckt->userid()));
 
 		try {
 			pCreateAccountStatement->execute();
@@ -105,7 +107,7 @@ int ChatDB::CreateAccount(cCreateAccountPacket* pckt)
 	return 0;
 }
 
-bool ChatDB::LoginIn()
+bool ChatDB::LoginIn(Authentication::LoginPacket* pckt)
 {
 	return false;
 }

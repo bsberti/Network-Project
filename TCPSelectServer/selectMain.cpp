@@ -9,7 +9,7 @@
 #include <string>
 #include <iostream>
 
-//#include "gen/addressbook.pb.h"
+#include "addressbook.pb.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -19,7 +19,7 @@
 #define DEFAULT_PORT "5555"
 
 // Create socket
-SOCKET connectSocket;
+SOCKET connectAuthSocket;
 const int recvBufLen = 1024;
 char receivedBuffer[recvBufLen];
 
@@ -99,8 +99,8 @@ int ConnectAuth(std::string ipaddr, std::string port) {
 
 
 	printf("Creating socket... ");
-	connectSocket = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
-	if (connectSocket == INVALID_SOCKET) {
+	connectAuthSocket = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
+	if (connectAuthSocket == INVALID_SOCKET) {
 		printf("socket failed with error %d\n", resultAuth);
 		WSACleanup();
 		return 1;
@@ -111,10 +111,10 @@ int ConnectAuth(std::string ipaddr, std::string port) {
 
 	// Connect to the server
 	printf("Connecting to the server... ");
-	resultAuth = connect(connectSocket, info->ai_addr, (int)info->ai_addrlen);
+	resultAuth = connect(connectAuthSocket, info->ai_addr, (int)info->ai_addrlen);
 	if (resultAuth == SOCKET_ERROR) {
 		printf("failed to connect to the server with error %d\n", WSAGetLastError());
-		closesocket(connectSocket);
+		closesocket(connectAuthSocket);
 		freeaddrinfo(info);
 		WSACleanup();
 		return 1;
@@ -125,10 +125,10 @@ int ConnectAuth(std::string ipaddr, std::string port) {
 
 	DWORD NonBlock = 1;
 	printf("Input-Output control socket nonBlock... ");
-	resultAuth = ioctlsocket(connectSocket, FIONBIO, &NonBlock);
+	resultAuth = ioctlsocket(connectAuthSocket, FIONBIO, &NonBlock);
 	if (resultAuth == SOCKET_ERROR) {
 		printf("ioctlsocket failed with error %d\n", WSAGetLastError());
-		closesocket(connectSocket);
+		closesocket(connectAuthSocket);
 		freeaddrinfo(info);
 		WSACleanup();
 		return 1;
@@ -138,7 +138,7 @@ int ConnectAuth(std::string ipaddr, std::string port) {
 		ZeroMemory(receivedBuffer, recvBufLen);
 
 		while (tryAgain) {
-			resultAuth = recv(connectSocket, receivedBuffer, recvBufLen, 0);
+			resultAuth = recv(connectAuthSocket, receivedBuffer, recvBufLen, 0);
 			// 0 = closed connection, disconnection
 			// > 0 = number of bytes received
 			// -1 = SCOKET_ERROR
@@ -149,7 +149,7 @@ int ConnectAuth(std::string ipaddr, std::string port) {
 				}
 				else {
 					printf("failed to receive message from the server with error %d\n", WSAGetLastError());
-					closesocket(connectSocket);
+					closesocket(connectAuthSocket);
 					WSACleanup();
 					return 1;
 				}
@@ -263,6 +263,11 @@ int main(int argc, char** argv) {
 		return result;
 	}
 
+	result = ConnectAuth("127.0.0.1", "5556");
+	if (result != 0) {
+		return result;
+	}
+
 	struct timeval tv;
 	tv.tv_sec = 0;
 	tv.tv_usec = 500 * 1000;
@@ -343,12 +348,16 @@ int main(int argc, char** argv) {
 					// Information received
 					buffer->m_Buffer = std::vector<uint8_t>(&buf[0], &buf[buflen]);
 					
+					Authentication::CreateAccountPacket createAccountPacket;
+					Authentication::LoginPacket loginPacket;
+
 					//Check Message ID first (LOGIN or SIGN IN)
 					int messageTotalLenght = buffer->ReadUInt32LE();
 					int messageId = buffer->ReadUInt32LE();
+					int messageLength = buffer->ReadUInt32LE();
 
-					pCreateAccountPacket.setPacketLength(messageTotalLenght);
-					pCreateAccountPacket.setMessageId(messageId);
+					//pCreateAccountPacket.setPacketLength(messageTotalLenght);
+					//pCreateAccountPacket.setMessageId(messageId);
 
 					if (messageId == 1) {
 						// SEND Login to Auth Server
@@ -357,33 +366,28 @@ int main(int argc, char** argv) {
 						//std::string username = pLoginPacket.username;
 						//std::string password = pLoginPacket.password;
 
-						result = ConnectAuth("127.0.0.1", "5556");
-						if (result != 0) {
-							return result;
-						}
 						
-
 					}
 					else if (messageId == 2) {
 						// SEND Create Account to Auth Server
-						pCreateAccountPacket.deserializePacket(buffer);
+						//pCreateAccountPacket.deserializePacket(buffer);
+						std::string serializedString = buffer->ReadString(messageLength);
+						createAccountPacket.ParseFromString(serializedString);
 
-						std::string name = pCreateAccountPacket.name;
-						std::string email = pCreateAccountPacket.email;
-						std::string username = pCreateAccountPacket.username;
-						std::string password = pCreateAccountPacket.password;
+						//std::string name = pCreateAccountPacket.name;
+						//std::string email = pCreateAccountPacket.email;
+						//std::string username = pCreateAccountPacket.username;
+						//std::string password = pCreateAccountPacket.password;
 						
-						result = ConnectAuth("127.0.0.1", "5556");
-						if (result != 0) {
-							return result;
-						}
-						
+						std::string email = createAccountPacket.email();
+						std::string password = createAccountPacket.hashed_password();
+
 						// Send Buffer
-						int sendResult = send(connectSocket, (const char*)&(buffer->m_Buffer[0]), buffer->m_Buffer.size(), 0);
+						int sendResult = send(connectAuthSocket, (const char*)&(buffer->m_Buffer[0]), buffer->m_Buffer.size(), 0);
 						if (sendResult == SOCKET_ERROR)
 						{
 							printf("failed to send message to the server with error %d\n", WSAGetLastError());
-							closesocket(connectSocket);
+							closesocket(connectAuthSocket);
 							WSACleanup();
 							return 1;
 						}
@@ -392,7 +396,7 @@ int main(int argc, char** argv) {
 							tryAgain = true;
 							std::cout << "Waiting for Server response ";
 							while (tryAgain) {
-								result = recv(connectSocket, receivedBuffer, recvBufLen, 0);
+								result = recv(connectAuthSocket, receivedBuffer, recvBufLen, 0);
 								// 0 = closed connection, disconnection
 								// > 0 = number of bytes received
 								// -1 = SCOKET_ERROR
@@ -404,7 +408,7 @@ int main(int argc, char** argv) {
 									}
 									else {
 										printf("failed to receive message from the server with error %d\n", WSAGetLastError());
-										closesocket(connectSocket);
+										closesocket(connectAuthSocket);
 										WSACleanup();
 										return 1;
 									}

@@ -8,7 +8,7 @@
 #include <vector>
 #include <string>
 
-//#include "gen/addressbook.pb.h"
+#include "gen/addressbook.pb.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -22,7 +22,7 @@ const int recvBufLen = 1024;
 char receivedBuffer[recvBufLen];
 
 MyBuffer* buffer = new MyBuffer(128);
-cCreateAccountPacket pCreateAccountPacket;
+cCreateAccountPacket* pCreateAccountPacket;
 
 ChatDB db;
 
@@ -40,25 +40,6 @@ struct ServerInfo {
 	std::vector<ClientInformation> clients;
 	std::vector<std::string> rooms;
 } g_ServerInfo;
-
-struct Packet {
-	int packetLength;
-	int messageId;
-};
-
-struct SendCommandPacket : public Packet {
-	std::string roomName;
-	std::string message;
-};
-
-struct JoinRoomCommandPacket : public Packet {
-	std::string roomName;
-};
-
-struct LeaveRoomCommandPacket : public Packet {
-	std::string roomName;
-};
-
 
 int Initialize() {
 	// Initialization
@@ -152,10 +133,6 @@ void Shutdown() {
 }
 
 int main(int argc, char** argv) {
-
-	//tutorial::AddressBook addressBook;
-	//tutorial::Person* clientTryingToConectInfo = addressBook.add_person();
-
 	int result = Initialize();
 	if (result != 0) {
 		return result;
@@ -241,31 +218,44 @@ int main(int argc, char** argv) {
 					// Information received
 					buffer->m_Buffer = std::vector<uint8_t>(&buf[0], &buf[buflen]);
 
-					// Check Message ID first (LOGIN or SIGN IN)
+					Authentication::CreateAccountPacket* createAccountPacket;
+					createAccountPacket = new Authentication::CreateAccountPacket();
+					
+					Authentication::LoginPacket loginPacket;
+
+					//Check Message ID first (LOGIN or SIGN IN)
 					int messageTotalLenght = buffer->ReadUInt32LE();
 					int messageId = buffer->ReadUInt32LE();
-
-					pCreateAccountPacket.setPacketLength(messageTotalLenght);
-					pCreateAccountPacket.setMessageId(messageId);
+					int messageLength = buffer->ReadUInt32LE();
 
 					if (messageId == 1) {
 
 					}
 					else if (messageId == 2) {
-						pCreateAccountPacket.deserializePacket(buffer);
+						std::string serializedString = buffer->ReadString(messageLength);
+						createAccountPacket->ParseFromString(serializedString);
 
-						std::string name = pCreateAccountPacket.name;
-						std::string email = pCreateAccountPacket.email;
-						std::string username = pCreateAccountPacket.username;
-						std::string password = pCreateAccountPacket.password;
+						std::string email = createAccountPacket->email();
+						std::string password = createAccountPacket->hashed_password();
+						int userID = createAccountPacket->userid();
 
 						// Trying to create account in MySQL DB
 						db.Connect();
 
-						//int dbResult = db.CreateAccount(pCreateAccountPacket);
+						int dbResult = db.CreateAccount(createAccountPacket);
+						std::string validationMessage;
+						if (dbResult == 0) {
+							validationMessage = "validated";
+						}
+						else if (dbResult == -1) {
+							validationMessage = "SQL ERROR";
+						}
+						else {
+							validationMessage = "Accouunt already exist, try to log in";
+						}
 
 						// Send result back to Select Server
-						std::string validationMessage = "validated";
+						
 						int sendResult = send(currentClient.socket, validationMessage.c_str(), validationMessage.size() + 1, 0);
 						if (sendResult == SOCKET_ERROR) {
 							printf("failed to send message back to the client with error %d\n", WSAGetLastError());
