@@ -16,7 +16,7 @@
 #include "cCreateAccountPacket.h"
 #include "gen/addressbook.pb.h"
 
-MyBuffer* buffer = new MyBuffer(128);
+MyBuffer* buffer;
 
 WSADATA wsaData;
 int result;
@@ -256,6 +256,7 @@ void CheckUserImput(std::string userImput) {
 
 	Authentication::CreateAccountPacket createAccountPacket;
 	Authentication::LoginPacket loginPacket;
+	buffer = new MyBuffer(128);
 
 	switch (userImput[0]) {
 	case '1':
@@ -267,7 +268,17 @@ void CheckUserImput(std::string userImput) {
 		getline(std::cin, passwordImput);
 
 		if (emailImput != "" && passwordImput != "") {
+			loginPacket.set_email(emailImput);
+			loginPacket.set_hashed_password(passwordImput);
 
+			loginPacket.SerializeToString(&serializedString);
+
+			buffer->WriteInt32LE(sizeof(int) +
+				sizeof(serializedString.length()) +
+				sizeof(serializedString));
+			buffer->WriteInt32LE(1);
+			buffer->WriteInt32LE(serializedString.length());
+			buffer->WriteString(serializedString);
 		}
 		break;
 	case '2':
@@ -285,40 +296,31 @@ void CheckUserImput(std::string userImput) {
 			passwordImput != "" &&
 			emailImput != "") {
 			
-			//createAccountPacket.set_packetlength(sizeof(Authentication::CreateAccountPacket));
-			//createAccountPacket.set_requestid(2);
 			createAccountPacket.set_userid(stoi(userIdImput));
 			createAccountPacket.set_email(emailImput);
-			
+
+			//Defining random salt
+			std::string salt;
+			salt = std::to_string(rand() * 100000);			
+			createAccountPacket.set_salt(salt);
+
+			// Hashing salt + password
 			std::string hashedPassword;
 			SHA256 sha;
-			sha.update(passwordImput);
+			sha.update(salt + passwordImput);
 			uint8_t* digest = sha.digest();
-
-			std::cout << SHA256::toString(digest) << std::endl;
-
 			createAccountPacket.set_hashed_password(SHA256::toString(digest));
 
 			delete[] digest; // Don't forget to free the digest!
 
+			// Serializing and writing buffer
 			createAccountPacket.SerializeToString(&serializedString);
-
 			buffer->WriteInt32LE(sizeof(int) + 
 				sizeof(serializedString.length()) + 
 				sizeof(serializedString));
 			buffer->WriteInt32LE(2);
 			buffer->WriteInt32LE(serializedString.length());
 			buffer->WriteString(serializedString);
-
-			// MESSAGE ->
-			// [Packet Length][MessageIDsize][MessageID][messageSize][message]
-			//pCreateAccountPacket.setPacketLength(sizeof(cCreateAccountPacket));
-			//pCreateAccountPacket.setMessageId(2);
-			//pCreateAccountPacket.name = userIdImput;
-			//pCreateAccountPacket.email = emailImput;
-			//pCreateAccountPacket.password = passwordImput;
-
-			//pCreateAccountPacket.serializePacket(buffer);
 		}
 		break;
 
@@ -336,9 +338,9 @@ int main(int argc, char** argv) {
 	// LOGIN OR SIGN IN
 	do {
 		system("CLS");
-		std::cout << "CHAT SERVER\n> ";
-		std::cout << "Chose one of the options to continue . . .\n> ";
-		std::cout << "1 - Login\n> ";
+		std::cout << "CHAT SERVER\n ";
+		std::cout << "Chose one of the options to continue . . .\n ";
+		std::cout << "1 - Login\n ";
 		std::cout << "2 - Create an account\n> ";
 		getline(std::cin, userInput);
 		if (userInput.size() > 0) {
@@ -384,12 +386,14 @@ int main(int argc, char** argv) {
 							tryAgain = false;
 							loggedIn = true;
 							//LOGIN SUCESSFULL
-							std::cout << "Login Sucessfull!";
+							std::cout << "Login Sucessfull!" << std::endl;
 						}
 						else {
 							//LOGIN FAIL
+							tryAgain = false;
 							loggedIn = false;
-							std::cout << "Login Fail!";
+							std::cout << "Login Fail!" << std::endl;;
+							Sleep(2000);
 						}
 					}
 				}

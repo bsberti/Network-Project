@@ -23,7 +23,6 @@ SOCKET connectAuthSocket;
 const int recvBufLen = 1024;
 char receivedBuffer[recvBufLen];
 
-MyBuffer* buffer = new MyBuffer(128);
 cCreateAccountPacket pCreateAccountPacket;
 
 bool tryAgain = true;
@@ -296,7 +295,7 @@ int main(int argc, char** argv) {
 			printf("select failed with error %d\n", WSAGetLastError());
 			return 1;
 		}
-		printf(".");
+		//printf(".");
 
 		if (FD_ISSET(g_ServerInfo.listenSocket, &g_ServerInfo.socketsReadyForReading)) {
 			printf("\nCalling Accept... ");
@@ -346,44 +345,24 @@ int main(int argc, char** argv) {
 				}
 				else {
 					// Information received
-					buffer->m_Buffer = std::vector<uint8_t>(&buf[0], &buf[buflen]);
-					
-					Authentication::CreateAccountPacket createAccountPacket;
-					Authentication::LoginPacket loginPacket;
+					MyBuffer* recvClientBuffer = new MyBuffer(128);
+					recvClientBuffer->m_Buffer = std::vector<uint8_t>(&buf[0], &buf[buflen]);
 
-					//Check Message ID first (LOGIN or SIGN IN)
-					int messageTotalLenght = buffer->ReadUInt32LE();
-					int messageId = buffer->ReadUInt32LE();
-					int messageLength = buffer->ReadUInt32LE();
+					//Check Message ID first
+					int messageTotalLenght = recvClientBuffer->ReadUInt32LE();
+					int messageId = recvClientBuffer->ReadUInt32LE();
+					int messageLength = recvClientBuffer->ReadUInt32LE();
 
-					//pCreateAccountPacket.setPacketLength(messageTotalLenght);
-					//pCreateAccountPacket.setMessageId(messageId);
+					std::cout << "Client message ID: " << messageId << std::endl;
 
-					if (messageId == 1) {
-						// SEND Login to Auth Server
-						//pLoginPacket.deserializePacket(buffer);
-
-						//std::string username = pLoginPacket.username;
-						//std::string password = pLoginPacket.password;
-
+					if (messageId == 1 || messageId == 2) {
 						
-					}
-					else if (messageId == 2) {
-						// SEND Create Account to Auth Server
-						//pCreateAccountPacket.deserializePacket(buffer);
-						std::string serializedString = buffer->ReadString(messageLength);
-						createAccountPacket.ParseFromString(serializedString);
-
-						//std::string name = pCreateAccountPacket.name;
-						//std::string email = pCreateAccountPacket.email;
-						//std::string username = pCreateAccountPacket.username;
-						//std::string password = pCreateAccountPacket.password;
-						
-						std::string email = createAccountPacket.email();
-						std::string password = createAccountPacket.hashed_password();
+						// Message 1 = Login
+						// Message 2 = Create Account
+						// Both need to be sent to Authentication Server as it is
 
 						// Send Buffer
-						int sendResult = send(connectAuthSocket, (const char*)&(buffer->m_Buffer[0]), buffer->m_Buffer.size(), 0);
+						int sendResult = send(connectAuthSocket, (const char*)&(recvClientBuffer->m_Buffer[0]), recvClientBuffer->m_Buffer.size(), 0);
 						if (sendResult == SOCKET_ERROR)
 						{
 							printf("failed to send message to the server with error %d\n", WSAGetLastError());
@@ -396,11 +375,10 @@ int main(int argc, char** argv) {
 							tryAgain = true;
 							std::cout << "Waiting for Server response ";
 							while (tryAgain) {
-								result = recv(connectAuthSocket, receivedBuffer, recvBufLen, 0);
+								result = recv(connectAuthSocket, buf, buflen, 0);
 								// 0 = closed connection, disconnection
 								// > 0 = number of bytes received
 								// -1 = SCOKET_ERROR
-
 								if (result == SOCKET_ERROR) {
 									if (WSAGetLastError() == WSAEWOULDBLOCK) {
 										tryAgain = true;
@@ -414,39 +392,93 @@ int main(int argc, char** argv) {
 									}
 								}
 								else {
-									std::string recvString = std::string(receivedBuffer, 0, result);
-									std::cout << "SERVER> " << recvString << std::endl;
-									printf("Received %d bytes from the Server.\n", result);
-									if (recvString == "validated") {
-										tryAgain = false;
-										
-										//LOGIN SUCESSFULL
-										std::cout << "Login Sucessfull!";
+									tryAgain = false;
+									std::string validationMessage;
 
-										//Send the same message to Client
-										int sendAccountResult = send(currentClient.socket, recvString.c_str(), recvString.size() + 1, 0);
-										if (sendAccountResult == SOCKET_ERROR) {
-											printf("failed to send message back to the client with error %d\n", WSAGetLastError());
+									// Information received
+									MyBuffer* recvAuthBuffer = new MyBuffer(128);
+									recvAuthBuffer->m_Buffer = std::vector<uint8_t>(&buf[0], &buf[buflen]);
+
+									//Check Message ID first
+									int messageTotalLenght = recvAuthBuffer->ReadUInt32LE();
+									int authMessageId = recvAuthBuffer->ReadUInt32LE();
+									int messageLength = recvAuthBuffer->ReadUInt32LE();
+									std::string serializedString = recvAuthBuffer->ReadString(messageLength);
+
+									std::cout << "Authentication Server message ID: " << authMessageId << std::endl;
+									std::cout << "Message Length: " << messageLength << std::endl;
+									std::cout << "Serialized String: " << serializedString << std::endl;
+
+									std::cout << "Message ID? " << messageId << std::endl;
+									// Separating Login and Creation for Error categorization
+									if (messageId == 1) {
+										// LOGIN
+										if (authMessageId == 0) {
+											tryAgain = false;
+
+											// Account Created Sucessfull!
+											std::cout << "LOGIN Sucessfull!" << std::endl;
+											validationMessage = "validated";
 										}
-										else {
-											printf("Sent %d bytes to the Client.\n", sendAccountResult);
+										else if (authMessageId == 1) {
+											// Account Creation Fail
+											std::cout << "LOGIN Fail!" << std::endl;
+
+											Authentication::LoginFailurePacket failurePacket;
+											failurePacket.ParseFromString(serializedString);
+
+											if (failurePacket.reasonid() == Authentication::INVALID_CREDENTIALS) {
+												validationMessage = "Invalid Password";
+											}
+											else if (failurePacket.reasonid() == Authentication::INTERNAL_SERVER_ERROR) {
+												validationMessage = "Internal Server Error";
+											}
 										}
 									}
+									else if (messageId == 2) {
+										// ACCOUNT CREATION
+										std::cout << "Authentication Server result received " << std::endl;
+
+										if (authMessageId == 0) {
+											tryAgain = false;
+
+											// Account Created Sucessfull!
+											std::cout << "Account Created Sucessfull!";
+											validationMessage = "validated";
+											//Send the same message to Client
+											
+										}
+										else if (authMessageId == 1) {
+											// Account Creation Fail
+											std::cout << "Account Creation Fail!";
+
+											Authentication::CreateAccountFailurePacket failurePacket;
+											failurePacket.ParseFromString(serializedString);
+
+											if (failurePacket.reasonid() == Authentication::ACCOUNT_ALREADY_EXISTS) {
+												validationMessage = "Account already Exists";
+											}
+											else if (failurePacket.reasonid() == Authentication::INTERNAL_SERVER_ERROR) {
+												validationMessage = "Internal Server Error";
+											}
+										}
+									}
+
+									// Sending information back to Client
+									// Whatever it is
+									int sendAccountResult = send(currentClient.socket, validationMessage.c_str(), validationMessage.size() + 1, 0);
+									if (sendAccountResult == SOCKET_ERROR) {
+										printf("failed to send message back to the client with error %d\n", WSAGetLastError());
+									}
 									else {
-										//LOGIN FAIL
-										std::cout << "Login Fail!";
-										std::string loginFail = "Invalid credentials";
-										int sendFailResult = send(currentClient.socket, loginFail.c_str(), loginFail.size() + 1, 0);
-										if (sendFailResult == SOCKET_ERROR) {
-											printf("failed to send message back to the client with error %d\n", WSAGetLastError());
-										}
-										else {
-											printf("Sent %d bytes to the Client.\n", sendFailResult);
-										}
+										printf("Sent %d bytes to the Client.\n", sendAccountResult);
 									}
 								}
 							}
 						}
+					}
+					else if (messageId == 3) {
+
 					}
 				}
 

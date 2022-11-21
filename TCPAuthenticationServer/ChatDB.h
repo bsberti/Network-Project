@@ -18,12 +18,17 @@ public:
 	bool Connect();
 	void Disconnect();
 	int CreateAccount(Authentication::CreateAccountPacket* pckt);
-	bool LoginIn(Authentication::LoginPacket* pckt);
+	int Login(Authentication::LoginPacket* pckt);
+	int CreateUser(Authentication::CreateAccountPacket* pckt);
+	int UpdateUser(std::string id);
 
 private:
 	sql::Driver* driver;
 	sql::Connection* connection;
 	sql::Statement* pStatement;
-	sql::PreparedStatement* pCreateAccountStatement;
+	sql::PreparedStatement* pWebAuthStatement;
+	sql::PreparedStatement* pUserCreationStatement;
+	sql::PreparedStatement* pUserUpdateStatement;
+
 	sql::ResultSet* pResultSet;
 };

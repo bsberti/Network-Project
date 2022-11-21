@@ -72,8 +72,34 @@ struct LoginPacketDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT LoginPacketDefaultTypeInternal _LoginPacket_default_instance_;
+constexpr LoginSuccessPacket::LoginSuccessPacket(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : userid_(0){}
+struct LoginSuccessPacketDefaultTypeInternal {
+  constexpr LoginSuccessPacketDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~LoginSuccessPacketDefaultTypeInternal() {}
+  union {
+    LoginSuccessPacket _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT LoginSuccessPacketDefaultTypeInternal _LoginSuccessPacket_default_instance_;
+constexpr LoginFailurePacket::LoginFailurePacket(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : userid_(0)
+  , reasonid_(0)
+{}
+struct LoginFailurePacketDefaultTypeInternal {
+  constexpr LoginFailurePacketDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~LoginFailurePacketDefaultTypeInternal() {}
+  union {
+    LoginFailurePacket _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT LoginFailurePacketDefaultTypeInternal _LoginFailurePacket_default_instance_;
 }  // namespace Authentication
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_addressbook_2eproto[4];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_addressbook_2eproto[6];
 static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_addressbook_2eproto[1];
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_addressbook_2eproto = nullptr;
 
@@ -122,12 +148,32 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_addressbook_2eproto::offsets[]
   2,
   0,
   1,
+  PROTOBUF_FIELD_OFFSET(::Authentication::LoginSuccessPacket, _has_bits_),
+  PROTOBUF_FIELD_OFFSET(::Authentication::LoginSuccessPacket, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::Authentication::LoginSuccessPacket, userid_),
+  0,
+  PROTOBUF_FIELD_OFFSET(::Authentication::LoginFailurePacket, _has_bits_),
+  PROTOBUF_FIELD_OFFSET(::Authentication::LoginFailurePacket, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  ~0u,  // no _inlined_string_donated_
+  PROTOBUF_FIELD_OFFSET(::Authentication::LoginFailurePacket, userid_),
+  PROTOBUF_FIELD_OFFSET(::Authentication::LoginFailurePacket, reasonid_),
+  0,
+  1,
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, 10, -1, sizeof(::Authentication::CreateAccountPacket)},
   { 14, 21, -1, sizeof(::Authentication::CreateAccountSuccessPacket)},
   { 22, 30, -1, sizeof(::Authentication::CreateAccountFailurePacket)},
   { 32, 41, -1, sizeof(::Authentication::LoginPacket)},
+  { 44, 51, -1, sizeof(::Authentication::LoginSuccessPacket)},
+  { 52, 60, -1, sizeof(::Authentication::LoginFailurePacket)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -135,6 +181,8 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Authentication::_CreateAccountSuccessPacket_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Authentication::_CreateAccountFailurePacket_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Authentication::_LoginPacket_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Authentication::_LoginSuccessPacket_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::Authentication::_LoginFailurePacket_default_instance_),
 };
 
 const char descriptor_table_protodef_addressbook_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -142,19 +190,21 @@ const char descriptor_table_protodef_addressbook_2eproto[] PROTOBUF_SECTION_VARI
   "reateAccountPacket\022\016\n\006userId\030\001 \002(\005\022\r\n\005em"
   "ail\030\002 \002(\t\022\014\n\004salt\030\003 \002(\t\022\027\n\017hashed_passwo"
   "rd\030\004 \002(\t\",\n\032CreateAccountSuccessPacket\022\016"
-  "\n\006userId\030\001 \002(\005\"\310\001\n\032CreateAccountFailureP"
-  "acket\022\016\n\006userId\030\001 \002(\005\022C\n\010reasonId\030\002 \002(\0162"
-  "1.Authentication.CreateAccountFailurePac"
-  "ket.reason\"U\n\006reason\022\032\n\026ACCOUNT_ALREADY_"
-  "EXISTS\020\000\022\024\n\020INVALID_PASSWORD\020\001\022\031\n\025INTERN"
-  "AL_SERVER_ERROR\020\002\"E\n\013LoginPacket\022\016\n\006user"
-  "Id\030\001 \002(\005\022\r\n\005email\030\002 \002(\t\022\027\n\017hashed_passwo"
-  "rd\030\003 \002(\t"
+  "\n\006userId\030\001 \001(\005\"V\n\032CreateAccountFailurePa"
+  "cket\022\016\n\006userId\030\001 \001(\005\022(\n\010reasonId\030\002 \002(\0162\026"
+  ".Authentication.reason\"E\n\013LoginPacket\022\016\n"
+  "\006userId\030\001 \001(\005\022\r\n\005email\030\002 \002(\t\022\027\n\017hashed_p"
+  "assword\030\003 \002(\t\"$\n\022LoginSuccessPacket\022\016\n\006u"
+  "serId\030\001 \001(\005\"N\n\022LoginFailurePacket\022\016\n\006use"
+  "rId\030\001 \001(\005\022(\n\010reasonId\030\002 \002(\0162\026.Authentica"
+  "tion.reason*X\n\006reason\022\032\n\026ACCOUNT_ALREADY"
+  "_EXISTS\020\000\022\027\n\023INVALID_CREDENTIALS\020\001\022\031\n\025IN"
+  "TERNAL_SERVER_ERROR\020\002"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_addressbook_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_addressbook_2eproto = {
-  false, false, 448, descriptor_table_protodef_addressbook_2eproto, "addressbook.proto", 
-  &descriptor_table_addressbook_2eproto_once, nullptr, 0, 4,
+  false, false, 541, descriptor_table_protodef_addressbook_2eproto, "addressbook.proto", 
+  &descriptor_table_addressbook_2eproto_once, nullptr, 0, 6,
   schemas, file_default_instances, TableStruct_addressbook_2eproto::offsets,
   file_level_metadata_addressbook_2eproto, file_level_enum_descriptors_addressbook_2eproto, file_level_service_descriptors_addressbook_2eproto,
 };
@@ -165,11 +215,11 @@ PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable
 // Force running AddDescriptors() at dynamic initialization time.
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_addressbook_2eproto(&descriptor_table_addressbook_2eproto);
 namespace Authentication {
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* CreateAccountFailurePacket_reason_descriptor() {
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* reason_descriptor() {
   ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&descriptor_table_addressbook_2eproto);
   return file_level_enum_descriptors_addressbook_2eproto[0];
 }
-bool CreateAccountFailurePacket_reason_IsValid(int value) {
+bool reason_IsValid(int value) {
   switch (value) {
     case 0:
     case 1:
@@ -180,14 +230,6 @@ bool CreateAccountFailurePacket_reason_IsValid(int value) {
   }
 }
 
-#if (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
-constexpr CreateAccountFailurePacket_reason CreateAccountFailurePacket::ACCOUNT_ALREADY_EXISTS;
-constexpr CreateAccountFailurePacket_reason CreateAccountFailurePacket::INVALID_PASSWORD;
-constexpr CreateAccountFailurePacket_reason CreateAccountFailurePacket::INTERNAL_SERVER_ERROR;
-constexpr CreateAccountFailurePacket_reason CreateAccountFailurePacket::reason_MIN;
-constexpr CreateAccountFailurePacket_reason CreateAccountFailurePacket::reason_MAX;
-constexpr int CreateAccountFailurePacket::reason_ARRAYSIZE;
-#endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || _MSC_VER >= 1900)
 
 // ===================================================================
 
@@ -577,9 +619,6 @@ class CreateAccountSuccessPacket::_Internal {
   static void set_has_userid(HasBits* has_bits) {
     (*has_bits)[0] |= 1u;
   }
-  static bool MissingRequiredFields(const HasBits& has_bits) {
-    return ((has_bits[0] & 0x00000001) ^ 0x00000001) != 0;
-  }
 };
 
 CreateAccountSuccessPacket::CreateAccountSuccessPacket(::PROTOBUF_NAMESPACE_ID::Arena* arena,
@@ -642,7 +681,7 @@ const char* CreateAccountSuccessPacket::_InternalParse(const char* ptr, ::PROTOB
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // required int32 userId = 1;
+      // optional int32 userId = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
           _Internal::set_has_userid(&has_bits);
@@ -682,7 +721,7 @@ failure:
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  // required int32 userId = 1;
+  // optional int32 userId = 1;
   if (cached_has_bits & 0x00000001u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_userid(), target);
@@ -700,13 +739,15 @@ size_t CreateAccountSuccessPacket::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:Authentication.CreateAccountSuccessPacket)
   size_t total_size = 0;
 
-  // required int32 userId = 1;
-  if (_internal_has_userid()) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_userid());
-  }
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
+
+  // optional int32 userId = 1;
+  cached_has_bits = _has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_userid());
+  }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
@@ -744,7 +785,6 @@ void CreateAccountSuccessPacket::CopyFrom(const CreateAccountSuccessPacket& from
 }
 
 bool CreateAccountSuccessPacket::IsInitialized() const {
-  if (_Internal::MissingRequiredFields(_has_bits_)) return false;
   return true;
 }
 
@@ -773,7 +813,7 @@ class CreateAccountFailurePacket::_Internal {
     (*has_bits)[0] |= 2u;
   }
   static bool MissingRequiredFields(const HasBits& has_bits) {
-    return ((has_bits[0] & 0x00000003) ^ 0x00000003) != 0;
+    return ((has_bits[0] & 0x00000002) ^ 0x00000002) != 0;
   }
 };
 
@@ -847,7 +887,7 @@ const char* CreateAccountFailurePacket::_InternalParse(const char* ptr, ::PROTOB
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // required int32 userId = 1;
+      // optional int32 userId = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
           _Internal::set_has_userid(&has_bits);
@@ -856,13 +896,13 @@ const char* CreateAccountFailurePacket::_InternalParse(const char* ptr, ::PROTOB
         } else
           goto handle_unusual;
         continue;
-      // required .Authentication.CreateAccountFailurePacket.reason reasonId = 2;
+      // required .Authentication.reason reasonId = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
           ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
-          if (PROTOBUF_PREDICT_TRUE(::Authentication::CreateAccountFailurePacket_reason_IsValid(val))) {
-            _internal_set_reasonid(static_cast<::Authentication::CreateAccountFailurePacket_reason>(val));
+          if (PROTOBUF_PREDICT_TRUE(::Authentication::reason_IsValid(val))) {
+            _internal_set_reasonid(static_cast<::Authentication::reason>(val));
           } else {
             ::PROTOBUF_NAMESPACE_ID::internal::WriteVarint(2, val, mutable_unknown_fields());
           }
@@ -900,13 +940,13 @@ failure:
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  // required int32 userId = 1;
+  // optional int32 userId = 1;
   if (cached_has_bits & 0x00000001u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_userid(), target);
   }
 
-  // required .Authentication.CreateAccountFailurePacket.reason reasonId = 2;
+  // required .Authentication.reason reasonId = 2;
   if (cached_has_bits & 0x00000002u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
@@ -921,41 +961,24 @@ failure:
   return target;
 }
 
-size_t CreateAccountFailurePacket::RequiredFieldsByteSizeFallback() const {
-// @@protoc_insertion_point(required_fields_byte_size_fallback_start:Authentication.CreateAccountFailurePacket)
-  size_t total_size = 0;
-
-  if (_internal_has_userid()) {
-    // required int32 userId = 1;
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_userid());
-  }
-
-  if (_internal_has_reasonid()) {
-    // required .Authentication.CreateAccountFailurePacket.reason reasonId = 2;
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_reasonid());
-  }
-
-  return total_size;
-}
 size_t CreateAccountFailurePacket::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:Authentication.CreateAccountFailurePacket)
   size_t total_size = 0;
 
-  if (((_has_bits_[0] & 0x00000003) ^ 0x00000003) == 0) {  // All required fields are present.
-    // required int32 userId = 1;
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_userid());
-
-    // required .Authentication.CreateAccountFailurePacket.reason reasonId = 2;
+  // required .Authentication.reason reasonId = 2;
+  if (_internal_has_reasonid()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_reasonid());
-
-  } else {
-    total_size += RequiredFieldsByteSizeFallback();
   }
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
+
+  // optional int32 userId = 1;
+  cached_has_bits = _has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_userid());
+  }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
@@ -1037,7 +1060,7 @@ class LoginPacket::_Internal {
     (*has_bits)[0] |= 2u;
   }
   static bool MissingRequiredFields(const HasBits& has_bits) {
-    return ((has_bits[0] & 0x00000007) ^ 0x00000007) != 0;
+    return ((has_bits[0] & 0x00000003) ^ 0x00000003) != 0;
   }
 };
 
@@ -1124,7 +1147,7 @@ const char* LoginPacket::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // required int32 userId = 1;
+      // optional int32 userId = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
           _Internal::set_has_userid(&has_bits);
@@ -1188,7 +1211,7 @@ failure:
   (void) cached_has_bits;
 
   cached_has_bits = _has_bits_[0];
-  // required int32 userId = 1;
+  // optional int32 userId = 1;
   if (cached_has_bits & 0x00000004u) {
     target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_userid(), target);
@@ -1240,18 +1263,13 @@ size_t LoginPacket::RequiredFieldsByteSizeFallback() const {
         this->_internal_hashed_password());
   }
 
-  if (_internal_has_userid()) {
-    // required int32 userId = 1;
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_userid());
-  }
-
   return total_size;
 }
 size_t LoginPacket::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:Authentication.LoginPacket)
   size_t total_size = 0;
 
-  if (((_has_bits_[0] & 0x00000007) ^ 0x00000007) == 0) {  // All required fields are present.
+  if (((_has_bits_[0] & 0x00000003) ^ 0x00000003) == 0) {  // All required fields are present.
     // required string email = 2;
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
@@ -1262,15 +1280,18 @@ size_t LoginPacket::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_hashed_password());
 
-    // required int32 userId = 1;
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_userid());
-
   } else {
     total_size += RequiredFieldsByteSizeFallback();
   }
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
+
+  // optional int32 userId = 1;
+  cached_has_bits = _has_bits_[0];
+  if (cached_has_bits & 0x00000004u) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_userid());
+  }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
 }
@@ -1347,6 +1368,440 @@ void LoginPacket::InternalSwap(LoginPacket* other) {
       file_level_metadata_addressbook_2eproto[3]);
 }
 
+// ===================================================================
+
+class LoginSuccessPacket::_Internal {
+ public:
+  using HasBits = decltype(std::declval<LoginSuccessPacket>()._has_bits_);
+  static void set_has_userid(HasBits* has_bits) {
+    (*has_bits)[0] |= 1u;
+  }
+};
+
+LoginSuccessPacket::LoginSuccessPacket(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor();
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
+  // @@protoc_insertion_point(arena_constructor:Authentication.LoginSuccessPacket)
+}
+LoginSuccessPacket::LoginSuccessPacket(const LoginSuccessPacket& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _has_bits_(from._has_bits_) {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  userid_ = from.userid_;
+  // @@protoc_insertion_point(copy_constructor:Authentication.LoginSuccessPacket)
+}
+
+void LoginSuccessPacket::SharedCtor() {
+userid_ = 0;
+}
+
+LoginSuccessPacket::~LoginSuccessPacket() {
+  // @@protoc_insertion_point(destructor:Authentication.LoginSuccessPacket)
+  if (GetArenaForAllocation() != nullptr) return;
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+inline void LoginSuccessPacket::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
+
+void LoginSuccessPacket::ArenaDtor(void* object) {
+  LoginSuccessPacket* _this = reinterpret_cast< LoginSuccessPacket* >(object);
+  (void)_this;
+}
+void LoginSuccessPacket::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void LoginSuccessPacket::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+
+void LoginSuccessPacket::Clear() {
+// @@protoc_insertion_point(message_clear_start:Authentication.LoginSuccessPacket)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  userid_ = 0;
+  _has_bits_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* LoginSuccessPacket::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  _Internal::HasBits has_bits{};
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // optional int32 userId = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          _Internal::set_has_userid(&has_bits);
+          userid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  _has_bits_.Or(has_bits);
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* LoginSuccessPacket::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:Authentication.LoginSuccessPacket)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = _has_bits_[0];
+  // optional int32 userId = 1;
+  if (cached_has_bits & 0x00000001u) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_userid(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:Authentication.LoginSuccessPacket)
+  return target;
+}
+
+size_t LoginSuccessPacket::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Authentication.LoginSuccessPacket)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // optional int32 userId = 1;
+  cached_has_bits = _has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_userid());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData LoginSuccessPacket::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    LoginSuccessPacket::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*LoginSuccessPacket::GetClassData() const { return &_class_data_; }
+
+void LoginSuccessPacket::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<LoginSuccessPacket *>(to)->MergeFrom(
+      static_cast<const LoginSuccessPacket &>(from));
+}
+
+
+void LoginSuccessPacket::MergeFrom(const LoginSuccessPacket& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:Authentication.LoginSuccessPacket)
+  GOOGLE_DCHECK_NE(&from, this);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_has_userid()) {
+    _internal_set_userid(from._internal_userid());
+  }
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void LoginSuccessPacket::CopyFrom(const LoginSuccessPacket& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Authentication.LoginSuccessPacket)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool LoginSuccessPacket::IsInitialized() const {
+  return true;
+}
+
+void LoginSuccessPacket::InternalSwap(LoginSuccessPacket* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_has_bits_[0], other->_has_bits_[0]);
+  swap(userid_, other->userid_);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata LoginSuccessPacket::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_addressbook_2eproto_getter, &descriptor_table_addressbook_2eproto_once,
+      file_level_metadata_addressbook_2eproto[4]);
+}
+
+// ===================================================================
+
+class LoginFailurePacket::_Internal {
+ public:
+  using HasBits = decltype(std::declval<LoginFailurePacket>()._has_bits_);
+  static void set_has_userid(HasBits* has_bits) {
+    (*has_bits)[0] |= 1u;
+  }
+  static void set_has_reasonid(HasBits* has_bits) {
+    (*has_bits)[0] |= 2u;
+  }
+  static bool MissingRequiredFields(const HasBits& has_bits) {
+    return ((has_bits[0] & 0x00000002) ^ 0x00000002) != 0;
+  }
+};
+
+LoginFailurePacket::LoginFailurePacket(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                         bool is_message_owned)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor();
+  if (!is_message_owned) {
+    RegisterArenaDtor(arena);
+  }
+  // @@protoc_insertion_point(arena_constructor:Authentication.LoginFailurePacket)
+}
+LoginFailurePacket::LoginFailurePacket(const LoginFailurePacket& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      _has_bits_(from._has_bits_) {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  ::memcpy(&userid_, &from.userid_,
+    static_cast<size_t>(reinterpret_cast<char*>(&reasonid_) -
+    reinterpret_cast<char*>(&userid_)) + sizeof(reasonid_));
+  // @@protoc_insertion_point(copy_constructor:Authentication.LoginFailurePacket)
+}
+
+void LoginFailurePacket::SharedCtor() {
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
+    reinterpret_cast<char*>(&userid_) - reinterpret_cast<char*>(this)),
+    0, static_cast<size_t>(reinterpret_cast<char*>(&reasonid_) -
+    reinterpret_cast<char*>(&userid_)) + sizeof(reasonid_));
+}
+
+LoginFailurePacket::~LoginFailurePacket() {
+  // @@protoc_insertion_point(destructor:Authentication.LoginFailurePacket)
+  if (GetArenaForAllocation() != nullptr) return;
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+inline void LoginFailurePacket::SharedDtor() {
+  GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
+}
+
+void LoginFailurePacket::ArenaDtor(void* object) {
+  LoginFailurePacket* _this = reinterpret_cast< LoginFailurePacket* >(object);
+  (void)_this;
+}
+void LoginFailurePacket::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void LoginFailurePacket::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+
+void LoginFailurePacket::Clear() {
+// @@protoc_insertion_point(message_clear_start:Authentication.LoginFailurePacket)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _has_bits_[0];
+  if (cached_has_bits & 0x00000003u) {
+    ::memset(&userid_, 0, static_cast<size_t>(
+        reinterpret_cast<char*>(&reasonid_) -
+        reinterpret_cast<char*>(&userid_)) + sizeof(reasonid_));
+  }
+  _has_bits_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* LoginFailurePacket::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  _Internal::HasBits has_bits{};
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    switch (tag >> 3) {
+      // optional int32 userId = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          _Internal::set_has_userid(&has_bits);
+          userid_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // required .Authentication.reason reasonId = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
+          ::PROTOBUF_NAMESPACE_ID::uint64 val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+          CHK_(ptr);
+          if (PROTOBUF_PREDICT_TRUE(::Authentication::reason_IsValid(val))) {
+            _internal_set_reasonid(static_cast<::Authentication::reason>(val));
+          } else {
+            ::PROTOBUF_NAMESPACE_ID::internal::WriteVarint(2, val, mutable_unknown_fields());
+          }
+        } else
+          goto handle_unusual;
+        continue;
+      default:
+        goto handle_unusual;
+    }  // switch
+  handle_unusual:
+    if ((tag == 0) || ((tag & 7) == 4)) {
+      CHK_(ptr);
+      ctx->SetLastTag(tag);
+      goto message_done;
+    }
+    ptr = UnknownFieldParse(
+        tag,
+        _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+        ptr, ctx);
+    CHK_(ptr != nullptr);
+  }  // while
+message_done:
+  _has_bits_.Or(has_bits);
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto message_done;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* LoginFailurePacket::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:Authentication.LoginFailurePacket)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = _has_bits_[0];
+  // optional int32 userId = 1;
+  if (cached_has_bits & 0x00000001u) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_userid(), target);
+  }
+
+  // required .Authentication.reason reasonId = 2;
+  if (cached_has_bits & 0x00000002u) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
+      2, this->_internal_reasonid(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:Authentication.LoginFailurePacket)
+  return target;
+}
+
+size_t LoginFailurePacket::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:Authentication.LoginFailurePacket)
+  size_t total_size = 0;
+
+  // required .Authentication.reason reasonId = 2;
+  if (_internal_has_reasonid()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::EnumSize(this->_internal_reasonid());
+  }
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // optional int32 userId = 1;
+  cached_has_bits = _has_bits_[0];
+  if (cached_has_bits & 0x00000001u) {
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_userid());
+  }
+
+  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+}
+
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData LoginFailurePacket::_class_data_ = {
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    LoginFailurePacket::MergeImpl
+};
+const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*LoginFailurePacket::GetClassData() const { return &_class_data_; }
+
+void LoginFailurePacket::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
+                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+  static_cast<LoginFailurePacket *>(to)->MergeFrom(
+      static_cast<const LoginFailurePacket &>(from));
+}
+
+
+void LoginFailurePacket::MergeFrom(const LoginFailurePacket& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:Authentication.LoginFailurePacket)
+  GOOGLE_DCHECK_NE(&from, this);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._has_bits_[0];
+  if (cached_has_bits & 0x00000003u) {
+    if (cached_has_bits & 0x00000001u) {
+      userid_ = from.userid_;
+    }
+    if (cached_has_bits & 0x00000002u) {
+      reasonid_ = from.reasonid_;
+    }
+    _has_bits_[0] |= cached_has_bits;
+  }
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void LoginFailurePacket::CopyFrom(const LoginFailurePacket& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:Authentication.LoginFailurePacket)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool LoginFailurePacket::IsInitialized() const {
+  if (_Internal::MissingRequiredFields(_has_bits_)) return false;
+  return true;
+}
+
+void LoginFailurePacket::InternalSwap(LoginFailurePacket* other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_has_bits_[0], other->_has_bits_[0]);
+  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(LoginFailurePacket, reasonid_)
+      + sizeof(LoginFailurePacket::reasonid_)
+      - PROTOBUF_FIELD_OFFSET(LoginFailurePacket, userid_)>(
+          reinterpret_cast<char*>(&userid_),
+          reinterpret_cast<char*>(&other->userid_));
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata LoginFailurePacket::GetMetadata() const {
+  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+      &descriptor_table_addressbook_2eproto_getter, &descriptor_table_addressbook_2eproto_once,
+      file_level_metadata_addressbook_2eproto[5]);
+}
+
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace Authentication
 PROTOBUF_NAMESPACE_OPEN
@@ -1361,6 +1816,12 @@ template<> PROTOBUF_NOINLINE ::Authentication::CreateAccountFailurePacket* Arena
 }
 template<> PROTOBUF_NOINLINE ::Authentication::LoginPacket* Arena::CreateMaybeMessage< ::Authentication::LoginPacket >(Arena* arena) {
   return Arena::CreateMessageInternal< ::Authentication::LoginPacket >(arena);
+}
+template<> PROTOBUF_NOINLINE ::Authentication::LoginSuccessPacket* Arena::CreateMaybeMessage< ::Authentication::LoginSuccessPacket >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::Authentication::LoginSuccessPacket >(arena);
+}
+template<> PROTOBUF_NOINLINE ::Authentication::LoginFailurePacket* Arena::CreateMaybeMessage< ::Authentication::LoginFailurePacket >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::Authentication::LoginFailurePacket >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

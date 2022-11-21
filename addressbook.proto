@@ -2,6 +2,12 @@ syntax = "proto2";
 
 package Authentication;
 
+enum reason {
+  ACCOUNT_ALREADY_EXISTS = 0;
+  INVALID_CREDENTIALS = 1;
+  INTERNAL_SERVER_ERROR = 2;
+}
+
 message CreateAccountPacket {
   required int32 userId = 1;
   required string email = 2;
@@ -10,23 +16,25 @@ message CreateAccountPacket {
 }
 
 message CreateAccountSuccessPacket {
-  required int32 userId = 1;
+  optional int32 userId = 1;
 }
 
 message CreateAccountFailurePacket {
-  required int32 userId = 1;
-  enum reason {
-    ACCOUNT_ALREADY_EXISTS = 0;
-    INVALID_PASSWORD = 1;
-    INTERNAL_SERVER_ERROR = 2;
-  }
-  
+  optional int32 userId = 1;  
   required reason reasonId = 2;
 }
 
 message LoginPacket {
-  required int32 userId = 1;
+  optional int32 userId = 1;
   required string email = 2;
   required string hashed_password = 3;
 }
 
+message LoginSuccessPacket {
+  optional int32 userId = 1;
+}
+
+message LoginFailurePacket {
+  optional int32 userId = 1;  
+  required reason reasonId = 2;
+}

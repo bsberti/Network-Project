@@ -47,7 +47,7 @@ struct TableStruct_addressbook_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[4]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[6]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -64,41 +64,49 @@ extern CreateAccountPacketDefaultTypeInternal _CreateAccountPacket_default_insta
 class CreateAccountSuccessPacket;
 struct CreateAccountSuccessPacketDefaultTypeInternal;
 extern CreateAccountSuccessPacketDefaultTypeInternal _CreateAccountSuccessPacket_default_instance_;
+class LoginFailurePacket;
+struct LoginFailurePacketDefaultTypeInternal;
+extern LoginFailurePacketDefaultTypeInternal _LoginFailurePacket_default_instance_;
 class LoginPacket;
 struct LoginPacketDefaultTypeInternal;
 extern LoginPacketDefaultTypeInternal _LoginPacket_default_instance_;
+class LoginSuccessPacket;
+struct LoginSuccessPacketDefaultTypeInternal;
+extern LoginSuccessPacketDefaultTypeInternal _LoginSuccessPacket_default_instance_;
 }  // namespace Authentication
 PROTOBUF_NAMESPACE_OPEN
 template<> ::Authentication::CreateAccountFailurePacket* Arena::CreateMaybeMessage<::Authentication::CreateAccountFailurePacket>(Arena*);
 template<> ::Authentication::CreateAccountPacket* Arena::CreateMaybeMessage<::Authentication::CreateAccountPacket>(Arena*);
 template<> ::Authentication::CreateAccountSuccessPacket* Arena::CreateMaybeMessage<::Authentication::CreateAccountSuccessPacket>(Arena*);
+template<> ::Authentication::LoginFailurePacket* Arena::CreateMaybeMessage<::Authentication::LoginFailurePacket>(Arena*);
 template<> ::Authentication::LoginPacket* Arena::CreateMaybeMessage<::Authentication::LoginPacket>(Arena*);
+template<> ::Authentication::LoginSuccessPacket* Arena::CreateMaybeMessage<::Authentication::LoginSuccessPacket>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace Authentication {
 
-enum CreateAccountFailurePacket_reason : int {
-  CreateAccountFailurePacket_reason_ACCOUNT_ALREADY_EXISTS = 0,
-  CreateAccountFailurePacket_reason_INVALID_PASSWORD = 1,
-  CreateAccountFailurePacket_reason_INTERNAL_SERVER_ERROR = 2
+enum reason : int {
+  ACCOUNT_ALREADY_EXISTS = 0,
+  INVALID_CREDENTIALS = 1,
+  INTERNAL_SERVER_ERROR = 2
 };
-bool CreateAccountFailurePacket_reason_IsValid(int value);
-constexpr CreateAccountFailurePacket_reason CreateAccountFailurePacket_reason_reason_MIN = CreateAccountFailurePacket_reason_ACCOUNT_ALREADY_EXISTS;
-constexpr CreateAccountFailurePacket_reason CreateAccountFailurePacket_reason_reason_MAX = CreateAccountFailurePacket_reason_INTERNAL_SERVER_ERROR;
-constexpr int CreateAccountFailurePacket_reason_reason_ARRAYSIZE = CreateAccountFailurePacket_reason_reason_MAX + 1;
+bool reason_IsValid(int value);
+constexpr reason reason_MIN = ACCOUNT_ALREADY_EXISTS;
+constexpr reason reason_MAX = INTERNAL_SERVER_ERROR;
+constexpr int reason_ARRAYSIZE = reason_MAX + 1;
 
-const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* CreateAccountFailurePacket_reason_descriptor();
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* reason_descriptor();
 template<typename T>
-inline const std::string& CreateAccountFailurePacket_reason_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, CreateAccountFailurePacket_reason>::value ||
+inline const std::string& reason_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, reason>::value ||
     ::std::is_integral<T>::value,
-    "Incorrect type passed to function CreateAccountFailurePacket_reason_Name.");
+    "Incorrect type passed to function reason_Name.");
   return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
-    CreateAccountFailurePacket_reason_descriptor(), enum_t_value);
+    reason_descriptor(), enum_t_value);
 }
-inline bool CreateAccountFailurePacket_reason_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, CreateAccountFailurePacket_reason* value) {
-  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<CreateAccountFailurePacket_reason>(
-    CreateAccountFailurePacket_reason_descriptor(), name, value);
+inline bool reason_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, reason* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<reason>(
+    reason_descriptor(), name, value);
 }
 // ===================================================================
 
@@ -448,7 +456,7 @@ class CreateAccountSuccessPacket final :
   enum : int {
     kUserIdFieldNumber = 1,
   };
-  // required int32 userId = 1;
+  // optional int32 userId = 1;
   bool has_userid() const;
   private:
   bool _internal_has_userid() const;
@@ -598,45 +606,13 @@ class CreateAccountFailurePacket final :
 
   // nested types ----------------------------------------------------
 
-  typedef CreateAccountFailurePacket_reason reason;
-  static constexpr reason ACCOUNT_ALREADY_EXISTS =
-    CreateAccountFailurePacket_reason_ACCOUNT_ALREADY_EXISTS;
-  static constexpr reason INVALID_PASSWORD =
-    CreateAccountFailurePacket_reason_INVALID_PASSWORD;
-  static constexpr reason INTERNAL_SERVER_ERROR =
-    CreateAccountFailurePacket_reason_INTERNAL_SERVER_ERROR;
-  static inline bool reason_IsValid(int value) {
-    return CreateAccountFailurePacket_reason_IsValid(value);
-  }
-  static constexpr reason reason_MIN =
-    CreateAccountFailurePacket_reason_reason_MIN;
-  static constexpr reason reason_MAX =
-    CreateAccountFailurePacket_reason_reason_MAX;
-  static constexpr int reason_ARRAYSIZE =
-    CreateAccountFailurePacket_reason_reason_ARRAYSIZE;
-  static inline const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor*
-  reason_descriptor() {
-    return CreateAccountFailurePacket_reason_descriptor();
-  }
-  template<typename T>
-  static inline const std::string& reason_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, reason>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function reason_Name.");
-    return CreateAccountFailurePacket_reason_Name(enum_t_value);
-  }
-  static inline bool reason_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      reason* value) {
-    return CreateAccountFailurePacket_reason_Parse(name, value);
-  }
-
   // accessors -------------------------------------------------------
 
   enum : int {
     kUserIdFieldNumber = 1,
     kReasonIdFieldNumber = 2,
   };
-  // required int32 userId = 1;
+  // optional int32 userId = 1;
   bool has_userid() const;
   private:
   bool _internal_has_userid() const;
@@ -649,25 +625,22 @@ class CreateAccountFailurePacket final :
   void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
-  // required .Authentication.CreateAccountFailurePacket.reason reasonId = 2;
+  // required .Authentication.reason reasonId = 2;
   bool has_reasonid() const;
   private:
   bool _internal_has_reasonid() const;
   public:
   void clear_reasonid();
-  ::Authentication::CreateAccountFailurePacket_reason reasonid() const;
-  void set_reasonid(::Authentication::CreateAccountFailurePacket_reason value);
+  ::Authentication::reason reasonid() const;
+  void set_reasonid(::Authentication::reason value);
   private:
-  ::Authentication::CreateAccountFailurePacket_reason _internal_reasonid() const;
-  void _internal_set_reasonid(::Authentication::CreateAccountFailurePacket_reason value);
+  ::Authentication::reason _internal_reasonid() const;
+  void _internal_set_reasonid(::Authentication::reason value);
   public:
 
   // @@protoc_insertion_point(class_scope:Authentication.CreateAccountFailurePacket)
  private:
   class _Internal;
-
-  // helper for ByteSizeLong()
-  size_t RequiredFieldsByteSizeFallback() const;
 
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
@@ -846,7 +819,7 @@ class LoginPacket final :
   std::string* _internal_mutable_hashed_password();
   public:
 
-  // required int32 userId = 1;
+  // optional int32 userId = 1;
   bool has_userid() const;
   private:
   bool _internal_has_userid() const;
@@ -874,6 +847,331 @@ class LoginPacket final :
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr email_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr hashed_password_;
   ::PROTOBUF_NAMESPACE_ID::int32 userid_;
+  friend struct ::TableStruct_addressbook_2eproto;
+};
+// -------------------------------------------------------------------
+
+class LoginSuccessPacket final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Authentication.LoginSuccessPacket) */ {
+ public:
+  inline LoginSuccessPacket() : LoginSuccessPacket(nullptr) {}
+  ~LoginSuccessPacket() override;
+  explicit constexpr LoginSuccessPacket(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  LoginSuccessPacket(const LoginSuccessPacket& from);
+  LoginSuccessPacket(LoginSuccessPacket&& from) noexcept
+    : LoginSuccessPacket() {
+    *this = ::std::move(from);
+  }
+
+  inline LoginSuccessPacket& operator=(const LoginSuccessPacket& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline LoginSuccessPacket& operator=(LoginSuccessPacket&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
+    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
+  }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
+    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const LoginSuccessPacket& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const LoginSuccessPacket* internal_default_instance() {
+    return reinterpret_cast<const LoginSuccessPacket*>(
+               &_LoginSuccessPacket_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    4;
+
+  friend void swap(LoginSuccessPacket& a, LoginSuccessPacket& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(LoginSuccessPacket* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(LoginSuccessPacket* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline LoginSuccessPacket* New() const final {
+    return new LoginSuccessPacket();
+  }
+
+  LoginSuccessPacket* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<LoginSuccessPacket>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const LoginSuccessPacket& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const LoginSuccessPacket& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(LoginSuccessPacket* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Authentication.LoginSuccessPacket";
+  }
+  protected:
+  explicit LoginSuccessPacket(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kUserIdFieldNumber = 1,
+  };
+  // optional int32 userId = 1;
+  bool has_userid() const;
+  private:
+  bool _internal_has_userid() const;
+  public:
+  void clear_userid();
+  ::PROTOBUF_NAMESPACE_ID::int32 userid() const;
+  void set_userid(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_userid() const;
+  void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Authentication.LoginSuccessPacket)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  ::PROTOBUF_NAMESPACE_ID::int32 userid_;
+  friend struct ::TableStruct_addressbook_2eproto;
+};
+// -------------------------------------------------------------------
+
+class LoginFailurePacket final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Authentication.LoginFailurePacket) */ {
+ public:
+  inline LoginFailurePacket() : LoginFailurePacket(nullptr) {}
+  ~LoginFailurePacket() override;
+  explicit constexpr LoginFailurePacket(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  LoginFailurePacket(const LoginFailurePacket& from);
+  LoginFailurePacket(LoginFailurePacket&& from) noexcept
+    : LoginFailurePacket() {
+    *this = ::std::move(from);
+  }
+
+  inline LoginFailurePacket& operator=(const LoginFailurePacket& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline LoginFailurePacket& operator=(LoginFailurePacket&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
+    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
+  }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
+    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const LoginFailurePacket& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const LoginFailurePacket* internal_default_instance() {
+    return reinterpret_cast<const LoginFailurePacket*>(
+               &_LoginFailurePacket_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    5;
+
+  friend void swap(LoginFailurePacket& a, LoginFailurePacket& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(LoginFailurePacket* other) {
+    if (other == this) return;
+    if (GetOwningArena() == other->GetOwningArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(LoginFailurePacket* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline LoginFailurePacket* New() const final {
+    return new LoginFailurePacket();
+  }
+
+  LoginFailurePacket* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<LoginFailurePacket>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const LoginFailurePacket& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom(const LoginFailurePacket& from);
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to, const ::PROTOBUF_NAMESPACE_ID::Message& from);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(LoginFailurePacket* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Authentication.LoginFailurePacket";
+  }
+  protected:
+  explicit LoginFailurePacket(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kUserIdFieldNumber = 1,
+    kReasonIdFieldNumber = 2,
+  };
+  // optional int32 userId = 1;
+  bool has_userid() const;
+  private:
+  bool _internal_has_userid() const;
+  public:
+  void clear_userid();
+  ::PROTOBUF_NAMESPACE_ID::int32 userid() const;
+  void set_userid(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_userid() const;
+  void _internal_set_userid(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
+  // required .Authentication.reason reasonId = 2;
+  bool has_reasonid() const;
+  private:
+  bool _internal_has_reasonid() const;
+  public:
+  void clear_reasonid();
+  ::Authentication::reason reasonid() const;
+  void set_reasonid(::Authentication::reason value);
+  private:
+  ::Authentication::reason _internal_reasonid() const;
+  void _internal_set_reasonid(::Authentication::reason value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Authentication.LoginFailurePacket)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  ::PROTOBUF_NAMESPACE_ID::int32 userid_;
+  int reasonid_;
   friend struct ::TableStruct_addressbook_2eproto;
 };
 // ===================================================================
@@ -1093,7 +1391,7 @@ inline void CreateAccountPacket::set_allocated_hashed_password(std::string* hash
 
 // CreateAccountSuccessPacket
 
-// required int32 userId = 1;
+// optional int32 userId = 1;
 inline bool CreateAccountSuccessPacket::_internal_has_userid() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   return value;
@@ -1125,7 +1423,7 @@ inline void CreateAccountSuccessPacket::set_userid(::PROTOBUF_NAMESPACE_ID::int3
 
 // CreateAccountFailurePacket
 
-// required int32 userId = 1;
+// optional int32 userId = 1;
 inline bool CreateAccountFailurePacket::_internal_has_userid() const {
   bool value = (_has_bits_[0] & 0x00000001u) != 0;
   return value;
@@ -1153,7 +1451,7 @@ inline void CreateAccountFailurePacket::set_userid(::PROTOBUF_NAMESPACE_ID::int3
   // @@protoc_insertion_point(field_set:Authentication.CreateAccountFailurePacket.userId)
 }
 
-// required .Authentication.CreateAccountFailurePacket.reason reasonId = 2;
+// required .Authentication.reason reasonId = 2;
 inline bool CreateAccountFailurePacket::_internal_has_reasonid() const {
   bool value = (_has_bits_[0] & 0x00000002u) != 0;
   return value;
@@ -1165,19 +1463,19 @@ inline void CreateAccountFailurePacket::clear_reasonid() {
   reasonid_ = 0;
   _has_bits_[0] &= ~0x00000002u;
 }
-inline ::Authentication::CreateAccountFailurePacket_reason CreateAccountFailurePacket::_internal_reasonid() const {
-  return static_cast< ::Authentication::CreateAccountFailurePacket_reason >(reasonid_);
+inline ::Authentication::reason CreateAccountFailurePacket::_internal_reasonid() const {
+  return static_cast< ::Authentication::reason >(reasonid_);
 }
-inline ::Authentication::CreateAccountFailurePacket_reason CreateAccountFailurePacket::reasonid() const {
+inline ::Authentication::reason CreateAccountFailurePacket::reasonid() const {
   // @@protoc_insertion_point(field_get:Authentication.CreateAccountFailurePacket.reasonId)
   return _internal_reasonid();
 }
-inline void CreateAccountFailurePacket::_internal_set_reasonid(::Authentication::CreateAccountFailurePacket_reason value) {
-  assert(::Authentication::CreateAccountFailurePacket_reason_IsValid(value));
+inline void CreateAccountFailurePacket::_internal_set_reasonid(::Authentication::reason value) {
+  assert(::Authentication::reason_IsValid(value));
   _has_bits_[0] |= 0x00000002u;
   reasonid_ = value;
 }
-inline void CreateAccountFailurePacket::set_reasonid(::Authentication::CreateAccountFailurePacket_reason value) {
+inline void CreateAccountFailurePacket::set_reasonid(::Authentication::reason value) {
   _internal_set_reasonid(value);
   // @@protoc_insertion_point(field_set:Authentication.CreateAccountFailurePacket.reasonId)
 }
@@ -1186,7 +1484,7 @@ inline void CreateAccountFailurePacket::set_reasonid(::Authentication::CreateAcc
 
 // LoginPacket
 
-// required int32 userId = 1;
+// optional int32 userId = 1;
 inline bool LoginPacket::_internal_has_userid() const {
   bool value = (_has_bits_[0] & 0x00000004u) != 0;
   return value;
@@ -1330,9 +1628,106 @@ inline void LoginPacket::set_allocated_hashed_password(std::string* hashed_passw
   // @@protoc_insertion_point(field_set_allocated:Authentication.LoginPacket.hashed_password)
 }
 
+// -------------------------------------------------------------------
+
+// LoginSuccessPacket
+
+// optional int32 userId = 1;
+inline bool LoginSuccessPacket::_internal_has_userid() const {
+  bool value = (_has_bits_[0] & 0x00000001u) != 0;
+  return value;
+}
+inline bool LoginSuccessPacket::has_userid() const {
+  return _internal_has_userid();
+}
+inline void LoginSuccessPacket::clear_userid() {
+  userid_ = 0;
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 LoginSuccessPacket::_internal_userid() const {
+  return userid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 LoginSuccessPacket::userid() const {
+  // @@protoc_insertion_point(field_get:Authentication.LoginSuccessPacket.userId)
+  return _internal_userid();
+}
+inline void LoginSuccessPacket::_internal_set_userid(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _has_bits_[0] |= 0x00000001u;
+  userid_ = value;
+}
+inline void LoginSuccessPacket::set_userid(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_userid(value);
+  // @@protoc_insertion_point(field_set:Authentication.LoginSuccessPacket.userId)
+}
+
+// -------------------------------------------------------------------
+
+// LoginFailurePacket
+
+// optional int32 userId = 1;
+inline bool LoginFailurePacket::_internal_has_userid() const {
+  bool value = (_has_bits_[0] & 0x00000001u) != 0;
+  return value;
+}
+inline bool LoginFailurePacket::has_userid() const {
+  return _internal_has_userid();
+}
+inline void LoginFailurePacket::clear_userid() {
+  userid_ = 0;
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 LoginFailurePacket::_internal_userid() const {
+  return userid_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 LoginFailurePacket::userid() const {
+  // @@protoc_insertion_point(field_get:Authentication.LoginFailurePacket.userId)
+  return _internal_userid();
+}
+inline void LoginFailurePacket::_internal_set_userid(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _has_bits_[0] |= 0x00000001u;
+  userid_ = value;
+}
+inline void LoginFailurePacket::set_userid(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_userid(value);
+  // @@protoc_insertion_point(field_set:Authentication.LoginFailurePacket.userId)
+}
+
+// required .Authentication.reason reasonId = 2;
+inline bool LoginFailurePacket::_internal_has_reasonid() const {
+  bool value = (_has_bits_[0] & 0x00000002u) != 0;
+  return value;
+}
+inline bool LoginFailurePacket::has_reasonid() const {
+  return _internal_has_reasonid();
+}
+inline void LoginFailurePacket::clear_reasonid() {
+  reasonid_ = 0;
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline ::Authentication::reason LoginFailurePacket::_internal_reasonid() const {
+  return static_cast< ::Authentication::reason >(reasonid_);
+}
+inline ::Authentication::reason LoginFailurePacket::reasonid() const {
+  // @@protoc_insertion_point(field_get:Authentication.LoginFailurePacket.reasonId)
+  return _internal_reasonid();
+}
+inline void LoginFailurePacket::_internal_set_reasonid(::Authentication::reason value) {
+  assert(::Authentication::reason_IsValid(value));
+  _has_bits_[0] |= 0x00000002u;
+  reasonid_ = value;
+}
+inline void LoginFailurePacket::set_reasonid(::Authentication::reason value) {
+  _internal_set_reasonid(value);
+  // @@protoc_insertion_point(field_set:Authentication.LoginFailurePacket.reasonId)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
@@ -1346,10 +1741,10 @@ inline void LoginPacket::set_allocated_hashed_password(std::string* hashed_passw
 
 PROTOBUF_NAMESPACE_OPEN
 
-template <> struct is_proto_enum< ::Authentication::CreateAccountFailurePacket_reason> : ::std::true_type {};
+template <> struct is_proto_enum< ::Authentication::reason> : ::std::true_type {};
 template <>
-inline const EnumDescriptor* GetEnumDescriptor< ::Authentication::CreateAccountFailurePacket_reason>() {
-  return ::Authentication::CreateAccountFailurePacket_reason_descriptor();
+inline const EnumDescriptor* GetEnumDescriptor< ::Authentication::reason>() {
+  return ::Authentication::reason_descriptor();
 }
 
 PROTOBUF_NAMESPACE_CLOSE

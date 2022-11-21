@@ -21,7 +21,6 @@
 const int recvBufLen = 1024;
 char receivedBuffer[recvBufLen];
 
-MyBuffer* buffer = new MyBuffer(128);
 cCreateAccountPacket* pCreateAccountPacket;
 
 ChatDB db;
@@ -216,64 +215,147 @@ int main(int argc, char** argv) {
 				}
 				else {
 					// Information received
-					buffer->m_Buffer = std::vector<uint8_t>(&buf[0], &buf[buflen]);
+					MyBuffer* recvBuffer = new MyBuffer(128);
+					recvBuffer->m_Buffer = std::vector<uint8_t>(&buf[0], &buf[buflen]);
 
 					Authentication::CreateAccountPacket* createAccountPacket;
 					createAccountPacket = new Authentication::CreateAccountPacket();
 					
-					Authentication::LoginPacket loginPacket;
+					Authentication::LoginPacket* loginPacket;
+					loginPacket = new Authentication::LoginPacket();
 
 					//Check Message ID first (LOGIN or SIGN IN)
-					int messageTotalLenght = buffer->ReadUInt32LE();
-					int messageId = buffer->ReadUInt32LE();
-					int messageLength = buffer->ReadUInt32LE();
+					int messageTotalLenght = recvBuffer->ReadUInt32LE();
+					int messageId = recvBuffer->ReadUInt32LE();
+					int messageLength = recvBuffer->ReadUInt32LE();
+					std::string serializedString = recvBuffer->ReadString(messageLength);
+					//recvBuffer->m_Buffer.clear();
+					//recvBuffer->m_ReadBuffer = 0;
+					//recvBuffer->m_WriteBuffer = 0;
+
+					// Trying to create account in MySQL DB
+					db.Connect();
+
+					MyBuffer* sendBuffer = new MyBuffer(128);
 
 					if (messageId == 1) {
+						loginPacket->ParseFromString(serializedString);
 
-					}
-					else if (messageId == 2) {
-						std::string serializedString = buffer->ReadString(messageLength);
-						createAccountPacket->ParseFromString(serializedString);
-
-						std::string email = createAccountPacket->email();
-						std::string password = createAccountPacket->hashed_password();
-						int userID = createAccountPacket->userid();
-
-						// Trying to create account in MySQL DB
-						db.Connect();
-
-						int dbResult = db.CreateAccount(createAccountPacket);
-						std::string validationMessage;
+						int dbResult = db.Login(loginPacket);
+						std::cout << "dbResult: " << dbResult << std::endl;
 						if (dbResult == 0) {
-							validationMessage = "validated";
+							//Login Success!
+							Authentication::LoginSuccessPacket sucessPacket;
+							sucessPacket.set_userid(loginPacket->userid());
+
+							sucessPacket.SerializeToString(&serializedString);
+							sendBuffer->WriteInt32LE(sizeof(int) +
+								sizeof(serializedString.length()) +
+								sizeof(serializedString));
+							// 0 SUCCESS!
+							sendBuffer->WriteInt32LE(0);
+							sendBuffer->WriteInt32LE(serializedString.length());
+							sendBuffer->WriteString(serializedString);
 						}
 						else if (dbResult == -1) {
-							validationMessage = "SQL ERROR";
-						}
-						else {
-							validationMessage = "Accouunt already exist, try to log in";
-						}
+							//validationMessage = "SQL ERROR";
+							Authentication::LoginFailurePacket failurePacket;
+							//failurePacket.set_userid(createAccountPacket->userid());
+							failurePacket.set_reasonid(Authentication::INTERNAL_SERVER_ERROR);
 
-						// Send result back to Select Server
-						
-						int sendResult = send(currentClient.socket, validationMessage.c_str(), validationMessage.size() + 1, 0);
-						if (sendResult == SOCKET_ERROR) {
-							printf("failed to send message back to the client with error %d\n", WSAGetLastError());
+							failurePacket.SerializeToString(&serializedString);
+							sendBuffer->WriteInt32LE(sizeof(int) +
+								sizeof(serializedString.length()) +
+								sizeof(serializedString));
+							// 1 FAILURE!
+							sendBuffer->WriteInt32LE(1);
+							sendBuffer->WriteInt32LE(serializedString.length());
+							sendBuffer->WriteString(serializedString);
 						}
 						else {
-							printf("Sent %d bytes to the Client.\n", sendResult);
+							// Invalid Credentials
+							Authentication::LoginFailurePacket failurePacket;
+							//failurePacket.set_userid(createAccountPacket->userid());
+							failurePacket.set_reasonid(Authentication::INVALID_CREDENTIALS);
+
+							failurePacket.SerializeToString(&serializedString);
+							sendBuffer->WriteInt32LE(sizeof(int) +
+								sizeof(serializedString.length()) +
+								sizeof(serializedString));
+							sendBuffer->WriteInt32LE(1);
+							sendBuffer->WriteInt32LE(serializedString.length());
+							sendBuffer->WriteString(serializedString);
 						}
 					}
-				}
+					else if (messageId == 2) {
+						
+						createAccountPacket->ParseFromString(serializedString);
 
-				std::string welcomeMessage = "Mensagem recebida.\n";
-				int sendResult = send(currentClient.socket, welcomeMessage.c_str(), welcomeMessage.size() + 1, 0);
-				if (sendResult == SOCKET_ERROR) {
-					printf("failed to send message back to the client with error %d\n", WSAGetLastError());
+						int dbResult = db.CreateAccount(createAccountPacket);
+						
+						if (dbResult == 0) {
+							//validationMessage = "validated";
+							Authentication::CreateAccountSuccessPacket sucessPacket;
+							sucessPacket.set_userid(createAccountPacket->userid());
+
+							sucessPacket.SerializeToString(&serializedString);
+							sendBuffer->WriteInt32LE(sizeof(int) +
+								sizeof(serializedString.length()) +
+								sizeof(serializedString));
+							// 0 SUCCESS!
+							sendBuffer->WriteInt32LE(0);
+							sendBuffer->WriteInt32LE(serializedString.length());
+							sendBuffer->WriteString(serializedString);
+						}
+						else if (dbResult == -1) {
+							//validationMessage = "SQL ERROR";
+							Authentication::CreateAccountFailurePacket failurePacket;
+							failurePacket.set_userid(createAccountPacket->userid());
+							failurePacket.set_reasonid(Authentication::INTERNAL_SERVER_ERROR);
+							
+							failurePacket.SerializeToString(&serializedString);
+							sendBuffer->WriteInt32LE(sizeof(int) +
+								sizeof(serializedString.length()) +
+								sizeof(serializedString));
+							// 1 FAILURE!
+							sendBuffer->WriteInt32LE(1);
+							sendBuffer->WriteInt32LE(serializedString.length());
+							sendBuffer->WriteString(serializedString);
+
+						}
+						else {
+							//validationMessage = "Account already exist, try to log in";
+							Authentication::CreateAccountFailurePacket failurePacket;
+							failurePacket.set_userid(createAccountPacket->userid());
+							failurePacket.set_reasonid(Authentication::ACCOUNT_ALREADY_EXISTS);
+
+							failurePacket.SerializeToString(&serializedString);
+							sendBuffer->WriteInt32LE(sizeof(int) +
+								sizeof(serializedString.length()) +
+								sizeof(serializedString));
+							sendBuffer->WriteInt32LE(1);
+							sendBuffer->WriteInt32LE(serializedString.length());
+							sendBuffer->WriteString(serializedString);
+						}
+					}
+
+					// Send result back to Select Server
+					int sendResult = send(currentClient.socket, (const char*)&(sendBuffer->m_Buffer[0]), sendBuffer->m_Buffer.size(), 0);
+					if (sendResult == SOCKET_ERROR) {
+						printf("failed to send message back to the client with error %d\n", WSAGetLastError());
+					}
+					else {
+						printf("Sent %d bytes to the Client.\n", sendResult);
+					}
 				}
-				else {
-					printf("Sent %d bytes to the Client.\n", sendResult);
-				}
+				//std::string welcomeMessage = "Mensagem recebida.\n";
+				//int sendResult = send(currentClient.socket, welcomeMessage.c_str(), welcomeMessage.size() + 1, 0);
+				//if (sendResult == SOCKET_ERROR) {
+				//	printf("failed to send message back to the client with error %d\n", WSAGetLastError());
+				//}
+				//else {
+				//	printf("Sent %d bytes to the Client.\n", sendResult);
+				//}
 			}
 		}
 	}
